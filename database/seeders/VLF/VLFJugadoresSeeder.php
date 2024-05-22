@@ -1,0 +1,148 @@
+<?php
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+
+class VLFJugadoresSeeder extends Seeder
+{
+    /**
+     * Run the database seeds.
+     */
+    public function run(): void
+    {
+        $jugadores = [
+            //Jugadores racing
+            ['nombre' => 'O_Voishtato', 'edad' => 24, 'id_nacionalidad' => 9, 'id_equipo' => 1],
+            ['nombre' => 'R_Lisht', 'edad' => 18, 'id_nacionalidad' => 9, 'id_equipo' => 1],
+            ['nombre' => 'C_Eshtodseck', 'edad' => 18, 'id_nacionalidad' => 9, 'id_equipo' => 1],
+            ['nombre' => 'T_Eryur', 'edad' => 27, 'id_nacionalidad' => 9, 'id_equipo' => 1],
+            ['nombre' => 'C_Chinhooryo', 'edad' => 25, 'id_nacionalidad' => 9, 'id_equipo' => 1],
+            ['nombre' => 'D_Yiceny', 'edad' => 26, 'id_nacionalidad' => 9, 'id_equipo' => 1],
+            ['nombre' => 'C_Eja', 'edad' => 19, 'id_nacionalidad' => 9, 'id_equipo' => 1],
+            ['nombre' => 'O_Cloartemn', 'edad' => 26, 'id_nacionalidad' => 9, 'id_equipo' => 1],
+            ['nombre' => 'F_Udna', 'edad' => 23, 'id_nacionalidad' => 9, 'id_equipo' => 1],
+            ['nombre' => 'I_Nadsasya', 'edad' => 29, 'id_nacionalidad' => 9, 'id_equipo' => 1],
+            ['nombre' => 'N_Ushagr', 'edad' => 23, 'id_nacionalidad' => 9, 'id_equipo' => 1],
+            ['nombre' => 'E_Protyo', 'edad' => 23, 'id_nacionalidad' => 9, 'id_equipo' => 1],
+            ['nombre' => 'K_Jaezew', 'edad' => 25, 'id_nacionalidad' => 9, 'id_equipo' => 1],
+            ['nombre' => 'F_Odne', 'edad' => 26, 'id_nacionalidad' => 9, 'id_equipo' => 1],
+            ['nombre' => 'V_Grusht', 'edad' => 24, 'id_nacionalidad' => 9, 'id_equipo' => 1],
+            ['nombre' => 'A_Urte', 'edad' => 21, 'id_nacionalidad' => 9, 'id_equipo' => 1],
+            ['nombre' => 'N_Noivo', 'edad' => 17, 'id_nacionalidad' => 9, 'id_equipo' => 1],
+            ['nombre' => 'Q_Foadsetroa', 'edad' => 27, 'id_nacionalidad' => 9, 'id_equipo' => 1],
+            ['nombre' => 'N_Drupayi', 'edad' => 17, 'id_nacionalidad' => 9, 'id_equipo' => 1],
+            ['nombre' => 'A_Loemnert', 'edad' => 17, 'id_nacionalidad' => 9, 'id_equipo' => 1],
+            ['nombre' => 'T_Chovuf', 'edad' => 21, 'id_nacionalidad' => 9, 'id_equipo' => 1],
+            ['nombre' => 'K_Ashtund', 'edad' => 17, 'id_nacionalidad' => 9, 'id_equipo' => 1],
+            ['nombre' => 'M_Unyo', 'edad' => 28, 'id_nacionalidad' => 9, 'id_equipo' => 1],
+            ['nombre' => 'W_Bindu', 'edad' => 17, 'id_nacionalidad' => 9, 'id_equipo' => 1],
+            ['nombre' => 'Y_Shucke', 'edad' => 17, 'id_nacionalidad' => 9, 'id_equipo' => 1],
+            ['nombre' => 'B_Ohachusy', 'edad' => 29, 'id_nacionalidad' => 9, 'id_equipo' => 1],
+            ['nombre' => 'Z_Zoest', 'edad' => 19, 'id_nacionalidad' => 9, 'id_equipo' => 1],
+            ['nombre' => 'Q_Ronde', 'edad' => 23, 'id_nacionalidad' => 9, 'id_equipo' => 1],
+            ['nombre' => 'W_Ryowryo', 'edad' => 18, 'id_nacionalidad' => 9, 'id_equipo' => 1],
+            ['nombre' => 'U_Eputr', 'edad' => 28, 'id_nacionalidad' => 9, 'id_equipo' => 1],
+            //Jugadores independiente
+            ['nombre' => 'L_Ryili', 'edad' => 23, 'id_nacionalidad' => 9, 'id_equipo' => 2],
+            ['nombre' => 'S_Askabtipr', 'edad' => 28, 'id_nacionalidad' => 9, 'id_equipo' => 2],
+            ['nombre' => 'J_Oskewvuy', 'edad' => 22, 'id_nacionalidad' => 9, 'id_equipo' => 2],
+            ['nombre' => 'C_Umnablobt', 'edad' => 28, 'id_nacionalidad' => 9, 'id_equipo' => 2],
+            ['nombre' => 'B_Omo', 'edad' => 28, 'id_nacionalidad' => 9, 'id_equipo' => 2],
+            ['nombre' => 'M_Avraeshtab', 'edad' => 25, 'id_nacionalidad' => 9, 'id_equipo' => 2],
+            ['nombre' => 'S_Brarto', 'edad' => 24, 'id_nacionalidad' => 9, 'id_equipo' => 2],
+            ['nombre' => 'F_Ibto', 'edad' => 21, 'id_nacionalidad' => 9, 'id_equipo' => 2],
+            ['nombre' => 'X_Badr', 'edad' => 25, 'id_nacionalidad' => 9, 'id_equipo' => 2],
+            ['nombre' => 'R_Ihe', 'edad' => 20, 'id_nacionalidad' => 9, 'id_equipo' => 2],
+            ['nombre' => 'R_Ezochi', 'edad' => 24, 'id_nacionalidad' => 9, 'id_equipo' => 2],
+            ['nombre' => 'E_Odsebtow', 'edad' => 29, 'id_nacionalidad' => 9, 'id_equipo' => 2],
+            ['nombre' => 'U_Ukaert', 'edad' => 18, 'id_nacionalidad' => 9, 'id_equipo' => 2],
+            ['nombre' => 'N_Ebra', 'edad' => 17, 'id_nacionalidad' => 9, 'id_equipo' => 2],
+            ['nombre' => 'R_Ukanyi', 'edad' => 28, 'id_nacionalidad' => 9, 'id_equipo' => 2],
+            ['nombre' => 'Z_Enodrewbt', 'edad' => 25, 'id_nacionalidad' => 9, 'id_equipo' => 2],
+            ['nombre' => 'V_Ryenu', 'edad' => 20, 'id_nacionalidad' => 9, 'id_equipo' => 2],
+            ['nombre' => 'D_Dorst', 'edad' => 29, 'id_nacionalidad' => 9, 'id_equipo' => 2],
+            ['nombre' => 'A_Akewmnu', 'edad' => 23, 'id_nacionalidad' => 9, 'id_equipo' => 2],
+            ['nombre' => 'O_Jhiksoo', 'edad' => 28, 'id_nacionalidad' => 9, 'id_equipo' => 2],
+            ['nombre' => 'J_Uzow', 'edad' => 22, 'id_nacionalidad' => 9, 'id_equipo' => 2],
+            ['nombre' => 'M_Krandojh', 'edad' => 24, 'id_nacionalidad' => 9, 'id_equipo' => 2],
+            ['nombre' => 'J_Luany', 'edad' => 19, 'id_nacionalidad' => 9, 'id_equipo' => 2],
+            ['nombre' => 'X_Obaeny', 'edad' => 24, 'id_nacionalidad' => 9, 'id_equipo' => 2],
+            ['nombre' => 'U_Ijhitroa', 'edad' => 17, 'id_nacionalidad' => 9, 'id_equipo' => 2],
+            ['nombre' => 'V_Chisi', 'edad' => 21, 'id_nacionalidad' => 9, 'id_equipo' => 2],
+            ['nombre' => 'D_Donyuzi', 'edad' => 24, 'id_nacionalidad' => 9, 'id_equipo' => 2],
+            ['nombre' => 'X_Una', 'edad' => 25, 'id_nacionalidad' => 9, 'id_equipo' => 2],
+            ['nombre' => 'P_Ryagretr', 'edad' => 18, 'id_nacionalidad' => 9, 'id_equipo' => 2],
+            ['nombre' => 'I_Abtibtew', 'edad' => 20, 'id_nacionalidad' => 9, 'id_equipo' => 2],
+        ];
+        DB::table('vlf_jugadores')->insert($jugadores);
+        //HABILIDADES
+        $habilidades = [
+            //Jugadores racing
+            ['id_jugador' => 1, 'lado_preferido' => 'C', 'habilidad_arquero' => 17, 'habilidad_quite' => 3, 'habilidad_pase' => 4, 'habilidad_tiro' => 5, 'agresividad' => 42, 'resistencia' => 33, 'progreso_arquero' => 300, 'progreso_quite' => 300, 'progreso_pase' => 300, 'progreso_tiro' => 300, 'fisico' => 100],
+            ['id_jugador' => 2, 'lado_preferido' => 'C', 'habilidad_arquero' => 15, 'habilidad_quite' => 5, 'habilidad_pase' => 4, 'habilidad_tiro' => 5, 'agresividad' => 63, 'resistencia' => 29, 'progreso_arquero' => 300, 'progreso_quite' => 300, 'progreso_pase' => 300, 'progreso_tiro' => 300, 'fisico' => 100],
+            ['id_jugador' => 3, 'lado_preferido' => 'R', 'habilidad_arquero' => 13, 'habilidad_quite' => 4, 'habilidad_pase' => 3, 'habilidad_tiro' => 3, 'agresividad' => 53, 'resistencia' => 33, 'progreso_arquero' => 300, 'progreso_quite' => 300, 'progreso_pase' => 300, 'progreso_tiro' => 300, 'fisico' => 100],
+            ['id_jugador' => 4, 'lado_preferido' => 'C', 'habilidad_arquero' => 4, 'habilidad_quite' => 17, 'habilidad_pase' => 11, 'habilidad_tiro' => 12, 'agresividad' => 31, 'resistencia' => 25, 'progreso_arquero' => 300, 'progreso_quite' => 300, 'progreso_pase' => 300, 'progreso_tiro' => 300, 'fisico' => 100],
+            ['id_jugador' => 5, 'lado_preferido' => 'R', 'habilidad_arquero' => 3, 'habilidad_quite' => 17, 'habilidad_pase' => 9, 'habilidad_tiro' => 7, 'agresividad' => 64, 'resistencia' => 28, 'progreso_arquero' => 300, 'progreso_quite' => 300, 'progreso_pase' => 300, 'progreso_tiro' => 300, 'fisico' => 100],
+            ['id_jugador' => 6, 'lado_preferido' => 'C', 'habilidad_arquero' => 3, 'habilidad_quite' => 17, 'habilidad_pase' => 10, 'habilidad_tiro' => 10, 'agresividad' => 68, 'resistencia' => 36, 'progreso_arquero' => 300, 'progreso_quite' => 300, 'progreso_pase' => 300, 'progreso_tiro' => 300, 'fisico' => 100],
+            ['id_jugador' => 7, 'lado_preferido' => 'L', 'habilidad_arquero' => 3, 'habilidad_quite' => 16, 'habilidad_pase' => 9, 'habilidad_tiro' => 9, 'agresividad' => 53, 'resistencia' => 27, 'progreso_arquero' => 300, 'progreso_quite' => 300, 'progreso_pase' => 300, 'progreso_tiro' => 300, 'fisico' => 100],
+            ['id_jugador' => 8, 'lado_preferido' => 'C', 'habilidad_arquero' => 3, 'habilidad_quite' => 15, 'habilidad_pase' => 9, 'habilidad_tiro' => 12, 'agresividad' => 59, 'resistencia' => 23, 'progreso_arquero' => 300, 'progreso_quite' => 300, 'progreso_pase' => 300, 'progreso_tiro' => 300, 'fisico' => 100],
+            ['id_jugador' => 9, 'lado_preferido' => 'R', 'habilidad_arquero' => 5, 'habilidad_quite' => 15, 'habilidad_pase' => 9, 'habilidad_tiro' => 11, 'agresividad' => 48, 'resistencia' => 31, 'progreso_arquero' => 300, 'progreso_quite' => 300, 'progreso_pase' => 300, 'progreso_tiro' => 300, 'fisico' => 100],
+            ['id_jugador' => 10, 'lado_preferido' => 'L', 'habilidad_arquero' => 4, 'habilidad_quite' => 15, 'habilidad_pase' => 12, 'habilidad_tiro' => 10, 'agresividad' => 59, 'resistencia' => 23, 'progreso_arquero' => 300, 'progreso_quite' => 300, 'progreso_pase' => 300, 'progreso_tiro' => 300, 'fisico' => 100],
+            ['id_jugador' => 11, 'lado_preferido' => 'RC', 'habilidad_arquero' => 5, 'habilidad_quite' => 15, 'habilidad_pase' => 12, 'habilidad_tiro' => 9, 'agresividad' => 45, 'resistencia' => 30, 'progreso_arquero' => 300, 'progreso_quite' => 300, 'progreso_pase' => 300, 'progreso_tiro' => 300, 'fisico' => 100],
+            ['id_jugador' => 12, 'lado_preferido' => 'R', 'habilidad_arquero' => 3, 'habilidad_quite' => 14, 'habilidad_pase' => 9, 'habilidad_tiro' => 12, 'agresividad' => 60, 'resistencia' => 28, 'progreso_arquero' => 300, 'progreso_quite' => 300, 'progreso_pase' => 300, 'progreso_tiro' => 300, 'fisico' => 100],
+            ['id_jugador' => 13, 'lado_preferido' => 'L', 'habilidad_arquero' => 4, 'habilidad_quite' => 14, 'habilidad_pase' => 13, 'habilidad_tiro' => 9, 'agresividad' => 56, 'resistencia' => 32, 'progreso_arquero' => 300, 'progreso_quite' => 300, 'progreso_pase' => 300, 'progreso_tiro' => 300, 'fisico' => 100],
+            ['id_jugador' => 14, 'lado_preferido' => 'L', 'habilidad_arquero' => 4, 'habilidad_quite' => 11, 'habilidad_pase' => 7, 'habilidad_tiro' => 10, 'agresividad' => 39, 'resistencia' => 25, 'progreso_arquero' => 300, 'progreso_quite' => 300, 'progreso_pase' => 300, 'progreso_tiro' => 300, 'fisico' => 100],
+            ['id_jugador' => 15, 'lado_preferido' => 'RLC', 'habilidad_arquero' => 5, 'habilidad_quite' => 12, 'habilidad_pase' => 18, 'habilidad_tiro' => 9, 'agresividad' => 69, 'resistencia' => 36, 'progreso_arquero' => 300, 'progreso_quite' => 300, 'progreso_pase' => 300, 'progreso_tiro' => 300, 'fisico' => 100],
+            ['id_jugador' => 16, 'lado_preferido' => 'R', 'habilidad_arquero' => 4, 'habilidad_quite' => 9, 'habilidad_pase' => 15, 'habilidad_tiro' => 9, 'agresividad' => 46, 'resistencia' => 30, 'progreso_arquero' => 300, 'progreso_quite' => 300, 'progreso_pase' => 300, 'progreso_tiro' => 300, 'fisico' => 100],
+            ['id_jugador' => 17, 'lado_preferido' => 'RC', 'habilidad_arquero' => 4, 'habilidad_quite' => 10, 'habilidad_pase' => 13, 'habilidad_tiro' => 8, 'agresividad' => 36, 'resistencia' => 33, 'progreso_arquero' => 300, 'progreso_quite' => 300, 'progreso_pase' => 300, 'progreso_tiro' => 300, 'fisico' => 100],
+            ['id_jugador' => 18, 'lado_preferido' => 'R', 'habilidad_arquero' => 4, 'habilidad_quite' => 6, 'habilidad_pase' => 13, 'habilidad_tiro' => 10, 'agresividad' => 32, 'resistencia' => 30, 'progreso_arquero' => 300, 'progreso_quite' => 300, 'progreso_pase' => 300, 'progreso_tiro' => 300, 'fisico' => 100],
+            ['id_jugador' => 19, 'lado_preferido' => 'C', 'habilidad_arquero' => 4, 'habilidad_quite' => 9, 'habilidad_pase' => 12, 'habilidad_tiro' => 9, 'agresividad' => 58, 'resistencia' => 21, 'progreso_arquero' => 300, 'progreso_quite' => 300, 'progreso_pase' => 300, 'progreso_tiro' => 300, 'fisico' => 100],
+            ['id_jugador' => 20, 'lado_preferido' => 'L', 'habilidad_arquero' => 4, 'habilidad_quite' => 8, 'habilidad_pase' => 12, 'habilidad_tiro' => 10, 'agresividad' => 47, 'resistencia' => 31, 'progreso_arquero' => 300, 'progreso_quite' => 300, 'progreso_pase' => 300, 'progreso_tiro' => 300, 'fisico' => 100],
+            ['id_jugador' => 21, 'lado_preferido' => 'R', 'habilidad_arquero' => 4, 'habilidad_quite' => 9, 'habilidad_pase' => 12, 'habilidad_tiro' => 7, 'agresividad' => 49, 'resistencia' => 33, 'progreso_arquero' => 300, 'progreso_quite' => 300, 'progreso_pase' => 300, 'progreso_tiro' => 300, 'fisico' => 100],
+            ['id_jugador' => 22, 'lado_preferido' => 'C', 'habilidad_arquero' => 3, 'habilidad_quite' => 7, 'habilidad_pase' => 12, 'habilidad_tiro' => 13, 'agresividad' => 50, 'resistencia' => 27, 'progreso_arquero' => 300, 'progreso_quite' => 300, 'progreso_pase' => 300, 'progreso_tiro' => 300, 'fisico' => 100],
+            ['id_jugador' => 23, 'lado_preferido' => 'R', 'habilidad_arquero' => 4, 'habilidad_quite' => 9, 'habilidad_pase' => 11, 'habilidad_tiro' => 9, 'agresividad' => 37, 'resistencia' => 28, 'progreso_arquero' => 300, 'progreso_quite' => 300, 'progreso_pase' => 300, 'progreso_tiro' => 300, 'fisico' => 100],
+            ['id_jugador' => 24, 'lado_preferido' => 'C', 'habilidad_arquero' => 4, 'habilidad_quite' => 6, 'habilidad_pase' => 11, 'habilidad_tiro' => 14, 'agresividad' => 68, 'resistencia' => 21, 'progreso_arquero' => 300, 'progreso_quite' => 300, 'progreso_pase' => 300, 'progreso_tiro' => 300, 'fisico' => 100],
+            ['id_jugador' => 25, 'lado_preferido' => 'C', 'habilidad_arquero' => 5, 'habilidad_quite' => 6, 'habilidad_pase' => 10, 'habilidad_tiro' => 11, 'agresividad' => 39, 'resistencia' => 30, 'progreso_arquero' => 300, 'progreso_quite' => 300, 'progreso_pase' => 300, 'progreso_tiro' => 300, 'fisico' => 100],
+            ['id_jugador' => 26, 'lado_preferido' => 'C', 'habilidad_arquero' => 3, 'habilidad_quite' => 9, 'habilidad_pase' => 7, 'habilidad_tiro' => 18, 'agresividad' => 56, 'resistencia' => 30, 'progreso_arquero' => 300, 'progreso_quite' => 300, 'progreso_pase' => 300, 'progreso_tiro' => 300, 'fisico' => 100],
+            ['id_jugador' => 27, 'lado_preferido' => 'C', 'habilidad_arquero' => 5, 'habilidad_quite' => 11, 'habilidad_pase' => 7, 'habilidad_tiro' => 18, 'agresividad' => 28, 'resistencia' => 21, 'progreso_arquero' => 300, 'progreso_quite' => 300, 'progreso_pase' => 300, 'progreso_tiro' => 300, 'fisico' => 100],
+            ['id_jugador' => 28, 'lado_preferido' => 'R', 'habilidad_arquero' => 3, 'habilidad_quite' => 9, 'habilidad_pase' => 9, 'habilidad_tiro' => 17, 'agresividad' => 73, 'resistencia' => 27, 'progreso_arquero' => 300, 'progreso_quite' => 300, 'progreso_pase' => 300, 'progreso_tiro' => 300, 'fisico' => 100],
+            ['id_jugador' => 29, 'lado_preferido' => 'C', 'habilidad_arquero' => 5, 'habilidad_quite' => 6, 'habilidad_pase' => 6, 'habilidad_tiro' => 15, 'agresividad' => 68, 'resistencia' => 30, 'progreso_arquero' => 300, 'progreso_quite' => 300, 'progreso_pase' => 300, 'progreso_tiro' => 300, 'fisico' => 100],
+            ['id_jugador' => 30, 'lado_preferido' => 'R', 'habilidad_arquero' => 4, 'habilidad_quite' => 11, 'habilidad_pase' => 11, 'habilidad_tiro' => 12, 'agresividad' => 70, 'resistencia' => 30, 'progreso_arquero' => 300, 'progreso_quite' => 300, 'progreso_pase' => 300, 'progreso_tiro' => 300, 'fisico' => 100],
+            //Jugadores independiente
+            ['id_jugador'=> 31, 'lado_preferido' => 'LC', 'habilidad_arquero' => 18, 'habilidad_quite' => 4, 'habilidad_pase' => 4, 'habilidad_tiro' => 5, 'agresividad' => 50, 'resistencia' => 31, 'progreso_arquero' => 300, 'progreso_qute' => 300, 'progreso_pase' => 300, 'progreso_tiro' => 300, 'fisico' => 100],
+            ['id_jugador'=> 32, 'lado_preferido' => 'R', 'habilidad_arquero' => 17, 'habilidad_quite' => 4, 'habilidad_pase' => 3, 'habilidad_tiro' => 3, 'agresividad' => 68, 'resistencia' => 24, 'progreso_arquero' => 300, 'progreso_qute' => 300, 'progreso_pase' => 300, 'progreso_tiro' => 300, 'fisico' => 100],
+            ['id_jugador'=> 33, 'lado_preferido' => 'R', 'habilidad_arquero' => 15, 'habilidad_quite' => 5, 'habilidad_pase' => 3, 'habilidad_tiro' => 5, 'agresividad' => 39, 'resistencia' => 38, 'progreso_arquero' => 300, 'progreso_qute' => 300, 'progreso_pase' => 300, 'progreso_tiro' => 300, 'fisico' => 100],
+            ['id_jugador'=> 34, 'lado_preferido' => 'R', 'habilidad_arquero' => 5, 'habilidad_quite' => 19, 'habilidad_pase' => 8, 'habilidad_tiro' => 10, 'agresividad' => 48, 'resistencia' => 23, 'progreso_arquero' => 300, 'progreso_qute' => 300, 'progreso_pase' => 300, 'progreso_tiro' => 300, 'fisico' => 100],
+            ['id_jugador'=> 35, 'lado_preferido' => 'RC', 'habilidad_arquero' => 5, 'habilidad_quite' => 19, 'habilidad_pase' => 9, 'habilidad_tiro' => 6, 'agresividad' => 59, 'resistencia' => 38, 'progreso_arquero' => 300, 'progreso_qute' => 300, 'progreso_pase' => 300, 'progreso_tiro' => 300, 'fisico' => 100],
+            ['id_jugador'=> 36, 'lado_preferido' => 'C', 'habilidad_arquero' => 3, 'habilidad_quite' => 18, 'habilidad_pase' => 11, 'habilidad_tiro' => 6, 'agresividad' => 60, 'resistencia' => 25, 'progreso_arquero' => 300, 'progreso_qute' => 300, 'progreso_pase' => 300, 'progreso_tiro' => 300, 'fisico' => 100],
+            ['id_jugador'=> 37, 'lado_preferido' => 'C', 'habilidad_arquero' => 4, 'habilidad_quite' => 16, 'habilidad_pase' => 6, 'habilidad_tiro' => 11, 'agresividad' => 64, 'resistencia' => 21, 'progreso_arquero' => 300, 'progreso_qute' => 300, 'progreso_pase' => 300, 'progreso_tiro' => 300, 'fisico' => 100],
+            ['id_jugador'=> 38, 'lado_preferido' => 'RL', 'habilidad_arquero' => 3, 'habilidad_quite' => 15, 'habilidad_pase' => 7, 'habilidad_tiro' => 8, 'agresividad' => 34, 'resistencia' => 32, 'progreso_arquero' => 300, 'progreso_qute' => 300, 'progreso_pase' => 300, 'progreso_tiro' => 300, 'fisico' => 100],
+            ['id_jugador'=> 39, 'lado_preferido' => 'R', 'habilidad_arquero' => 4, 'habilidad_quite' => 15, 'habilidad_pase' => 10, 'habilidad_tiro' => 11, 'agresividad' => 32, 'resistencia' => 30, 'progreso_arquero' => 300, 'progreso_qute' => 300, 'progreso_pase' => 300, 'progreso_tiro' => 300, 'fisico' => 100],
+            ['id_jugador'=> 40, 'lado_preferido' => 'L', 'habilidad_arquero' => 3, 'habilidad_quite' => 15, 'habilidad_pase' => 11, 'habilidad_tiro' => 10, 'agresividad' => 47, 'resistencia' => 32, 'progreso_arquero' => 300, 'progreso_qute' => 300, 'progreso_pase' => 300, 'progreso_tiro' => 300, 'fisico' => 100],
+            ['id_jugador'=> 41, 'lado_preferido' => 'R', 'habilidad_arquero' => 4, 'habilidad_quite' => 15, 'habilidad_pase' => 11, 'habilidad_tiro' => 9, 'agresividad' => 28, 'resistencia' => 38, 'progreso_arquero' => 300, 'progreso_qute' => 300, 'progreso_pase' => 300, 'progreso_tiro' => 300, 'fisico' => 100],
+            ['id_jugador'=> 42, 'lado_preferido' => 'C', 'habilidad_arquero' => 4, 'habilidad_quite' => 14, 'habilidad_pase' => 12, 'habilidad_tiro' => 11, 'agresividad' => 72, 'resistencia' => 38, 'progreso_arquero' => 300, 'progreso_qute' => 300, 'progreso_pase' => 300, 'progreso_tiro' => 300, 'fisico' => 100],
+            ['id_jugador'=> 43, 'lado_preferido' => 'L', 'habilidad_arquero' => 4, 'habilidad_quite' => 12, 'habilidad_pase' => 11, 'habilidad_tiro' => 9, 'agresividad' => 71, 'resistencia' => 39, 'progreso_arquero' => 300, 'progreso_qute' => 300, 'progreso_pase' => 300, 'progreso_tiro' => 300, 'fisico' => 100],
+            ['id_jugador'=> 44, 'lado_preferido' => 'R', 'habilidad_arquero' => 5, 'habilidad_quite' => 11, 'habilidad_pase' => 9, 'habilidad_tiro' => 12, 'agresividad' => 43, 'resistencia' => 34, 'progreso_arquero' => 300, 'progreso_qute' => 300, 'progreso_pase' => 300, 'progreso_tiro' => 300, 'fisico' => 100],
+            ['id_jugador'=> 45, 'lado_preferido' => 'L', 'habilidad_arquero' => 4, 'habilidad_quite' => 9, 'habilidad_pase' => 17, 'habilidad_tiro' => 7, 'agresividad' => 65, 'resistencia' => 25, 'progreso_arquero' => 300, 'progreso_qute' => 300, 'progreso_pase' => 300, 'progreso_tiro' => 300, 'fisico' => 100],
+            ['id_jugador'=> 46, 'lado_preferido' => 'LC', 'habilidad_arquero' => 4, 'habilidad_quite' => 9, 'habilidad_pase' => 15, 'habilidad_tiro' => 7, 'agresividad' => 56, 'resistencia' => 25, 'progreso_arquero' => 300, 'progreso_qute' => 300, 'progreso_pase' => 300, 'progreso_tiro' => 300, 'fisico' => 100],
+            ['id_jugador'=> 47, 'lado_preferido' => 'R', 'habilidad_arquero' => 4, 'habilidad_quite' => 6, 'habilidad_pase' => 15, 'habilidad_tiro' => 10, 'agresividad' => 43, 'resistencia' => 34, 'progreso_arquero' => 300, 'progreso_qute' => 300, 'progreso_pase' => 300, 'progreso_tiro' => 300, 'fisico' => 100],
+            ['id_jugador'=> 48, 'lado_preferido' => 'RL', 'habilidad_arquero' => 3, 'habilidad_quite' => 11, 'habilidad_pase' => 14, 'habilidad_tiro' => 14, 'agresividad' => 63, 'resistencia' => 30, 'progreso_arquero' => 300, 'progreso_qute' => 300, 'progreso_pase' => 300, 'progreso_tiro' => 300, 'fisico' => 100],
+            ['id_jugador'=> 49, 'lado_preferido' => 'RL', 'habilidad_arquero' => 4, 'habilidad_quite' => 8, 'habilidad_pase' => 13, 'habilidad_tiro' => 11, 'agresividad' => 34, 'resistencia' => 33, 'progreso_arquero' => 300, 'progreso_qute' => 300, 'progreso_pase' => 300, 'progreso_tiro' => 300, 'fisico' => 100],
+            ['id_jugador'=> 50, 'lado_preferido' => 'C', 'habilidad_arquero' => 3, 'habilidad_quite' => 12, 'habilidad_pase' => 13, 'habilidad_tiro' => 7, 'agresividad' => 32, 'resistencia' => 22, 'progreso_arquero' => 300, 'progreso_qute' => 300, 'progreso_pase' => 300, 'progreso_tiro' => 300, 'fisico' => 100],
+            ['id_jugador'=> 51, 'lado_preferido' => 'R', 'habilidad_arquero' => 4, 'habilidad_quite' => 8, 'habilidad_pase' => 12, 'habilidad_tiro' => 9, 'agresividad' => 60, 'resistencia' => 32, 'progreso_arquero' => 300, 'progreso_qute' => 300, 'progreso_pase' => 300, 'progreso_tiro' => 300, 'fisico' => 100],
+            ['id_jugador'=> 52, 'lado_preferido' => 'R', 'habilidad_arquero' => 3, 'habilidad_quite' => 6, 'habilidad_pase' => 12, 'habilidad_tiro' => 7, 'agresividad' => 34, 'resistencia' => 39, 'progreso_arquero' => 300, 'progreso_qute' => 300, 'progreso_pase' => 300, 'progreso_tiro' => 300, 'fisico' => 100],
+            ['id_jugador'=> 53, 'lado_preferido' => 'LC', 'habilidad_arquero' => 4, 'habilidad_quite' => 11, 'habilidad_pase' => 12, 'habilidad_tiro' => 10, 'agresividad' => 50, 'resistencia' => 33, 'progreso_arquero' => 300, 'progreso_qute' => 300, 'progreso_pase' => 300, 'progreso_tiro' => 300, 'fisico' => 100],
+            ['id_jugador'=> 54, 'lado_preferido' => 'C', 'habilidad_arquero' => 3, 'habilidad_quite' => 10, 'habilidad_pase' => 12, 'habilidad_tiro' => 12, 'agresividad' => 62, 'resistencia' => 30, 'progreso_arquero' => 300, 'progreso_qute' => 300, 'progreso_pase' => 300, 'progreso_tiro' => 300, 'fisico' => 100],
+            ['id_jugador'=> 55, 'lado_preferido' => 'L', 'habilidad_arquero' => 4, 'habilidad_quite' => 9, 'habilidad_pase' => 12, 'habilidad_tiro' => 14, 'agresividad' => 27, 'resistencia' => 33, 'progreso_arquero' => 300, 'progreso_qute' => 300, 'progreso_pase' => 300, 'progreso_tiro' => 300, 'fisico' => 100],
+            ['id_jugador'=> 56, 'lado_preferido' => 'L', 'habilidad_arquero' => 4, 'habilidad_quite' => 8, 'habilidad_pase' => 9, 'habilidad_tiro' => 18, 'agresividad' => 37, 'resistencia' => 38, 'progreso_arquero' => 300, 'progreso_qute' => 300, 'progreso_pase' => 300, 'progreso_tiro' => 300, 'fisico' => 100],
+            ['id_jugador'=> 57, 'lado_preferido' => 'LC', 'habilidad_arquero' => 4, 'habilidad_quite' => 11, 'habilidad_pase' => 8, 'habilidad_tiro' => 18, 'agresividad' => 68, 'resistencia' => 35, 'progreso_arquero' => 300, 'progreso_qute' => 300, 'progreso_pase' => 300, 'progreso_tiro' => 300, 'fisico' => 100],
+            ['id_jugador'=> 58, 'lado_preferido' => 'RC', 'habilidad_arquero' => 5, 'habilidad_quite' => 9, 'habilidad_pase' => 6, 'habilidad_tiro' => 15, 'agresividad' => 39, 'resistencia' => 30, 'progreso_arquero' => 300, 'progreso_qute' => 300, 'progreso_pase' => 300, 'progreso_tiro' => 300, 'fisico' => 100],
+            ['id_jugador'=> 59, 'lado_preferido' => 'C', 'habilidad_arquero' => 4, 'habilidad_quite' => 11, 'habilidad_pase' => 12, 'habilidad_tiro' => 14, 'agresividad' => 33, 'resistencia' => 36, 'progreso_arquero' => 300, 'progreso_qute' => 300, 'progreso_pase' => 300, 'progreso_tiro' => 300, 'fisico' => 100],
+            ['id_jugador'=> 60, 'lado_preferido' => 'C', 'habilidad_arquero' => 4, 'habilidad_quite' => 8, 'habilidad_pase' => 7, 'habilidad_tiro' => 12, 'agresividad' => 29, 'resistencia' => 30, 'progreso_arquero' => 300, 'progreso_qute' => 300, 'progreso_pase' => 300, 'progreso_tiro' => 300, 'fisico' => 100],
+        ];
+        DB::table('vlf_habilidades_jugadores')->insert($habilidades);
+    }
+}

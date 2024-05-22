@@ -1,0 +1,24 @@
+{
+    "tactica": "C",
+    "titulares": {
+        "1": {"posicion": "AR", "lado": "", "id_jugador": 31},
+        "2": {"posicion": "DF", "lado": "C", "id_jugador": 34},
+        "3": {"posicion": "DF", "lado": "C", "id_jugador": 35},
+        "4": {"posicion": "DF", "lado": "C", "id_jugador": 36},
+        "5": {"posicion": "DF", "lado": "C", "id_jugador": 37},
+        "6": {"posicion": "DF", "lado": "C", "id_jugador": 38},
+        "7": {"posicion": "MC", "lado": "C", "id_jugador": 45},
+        "8": {"posicion": "MC", "lado": "C", "id_jugador": 46},
+        "9": {"posicion": "DL", "lado": "C", "id_jugador": 56},
+        "10": {"posicion": "DL", "lado": "C", "id_jugador": 57},
+        "11": {"posicion": "DL", "lado": "C", "id_jugador": 58}
+    },
+    "suplentes": {
+        "12": {"posicion": "AR", "lado": "", "id_jugador": 32},
+        "13": {"posicion": "DF", "lado": "C", "id_jugador": 39},
+        "14": {"posicion": "MC", "lado": "C", "id_jugador": 47},
+        "15": {"posicion": "DF", "lado": "C", "id_jugador": 40},
+        "16": {"posicion": "DL", "lado": "C", "id_jugador": 48}
+    },
+    "pateador_penales": 56
+}
