@@ -654,6 +654,19 @@ class EquipoPartido extends Model
     }
 
     /**
+     * Retorna la cantidad de jugadores que se lesionaron en el equipo
+     */
+    public function obtenerCantidadLesionados(): int
+    {
+        $aux_contador = 0;
+        foreach ($this->getJugadores() as $jugador) {
+            if ($jugador->getLesionado()) {
+                $aux_contador += 1;
+            }
+        }
+        return $aux_contador;
+    }
+    /**
      * GETTERS Y SETTERS
      */
     public function getEquipo(): Equipo
