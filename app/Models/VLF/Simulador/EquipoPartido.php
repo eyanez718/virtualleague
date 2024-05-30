@@ -556,8 +556,11 @@ class EquipoPartido extends Model
         }
         return $cantidad_jugadores;
     }
+
     /**
+     * Retorna un string con la alineación en formato numérico del equipo
      * 
+     * @return string
      */
     public function obtenerAlineacionNumerica(): string
     {
@@ -571,19 +574,116 @@ class EquipoPartido extends Model
             $aux_alineacion = $aux_alineacion . $aux_cantidad_df;
         }
         if ($aux_cantidad_md) {
-            $aux_alineacion = $aux_alineacion . ' - ' . $aux_cantidad_md;
+            $aux_alineacion = $aux_alineacion . ' ' . $aux_cantidad_md;
         }
         if ($aux_cantidad_mc) {
-            $aux_alineacion = $aux_alineacion . ' - ' . $aux_cantidad_mc;
+            $aux_alineacion = $aux_alineacion . ' ' . $aux_cantidad_mc;
         }
         if ($aux_cantidad_mo) {
-            $aux_alineacion = $aux_alineacion . ' - ' . $aux_cantidad_mo;
+            $aux_alineacion = $aux_alineacion . ' ' . $aux_cantidad_mo;
         }
         if ($aux_cantidad_dl) {
-            $aux_alineacion = $aux_alineacion . ' - ' . $aux_cantidad_dl;
+            $aux_alineacion = $aux_alineacion . ' ' . $aux_cantidad_dl;
         }
         return $aux_alineacion;
     }
+
+    /**
+     * Retorna un array con los jugadores iniciales del equipo
+     * 
+     * @return array
+     */
+    public function obtenerJugadoresIniciales(): array
+    {
+        $aux_jugadores = [];
+        $aux_contador = 0;
+        // Busco arquero
+        foreach ($this->getJugadores() as $jugador) {
+            if ($jugador->getPosicion() == 'AR' && $jugador->getActivo()) {
+                $aux_contador += 1;
+                $aux_jugadores = Arr::add($aux_jugadores, $aux_contador, $jugador->getPosicion() . ' ' . $jugador->getJugador()->getNombreApellido());
+            }
+        }
+        // Busco laterales izquierdos
+        foreach ($this->getJugadores() as $jugador) {
+            if ($jugador->getPosicion() == 'DF' && $jugador->getLado() == 'I' && $jugador->getActivo()) {
+                $aux_contador += 1;
+                $aux_jugadores = Arr::add($aux_jugadores, $aux_contador, $jugador->getPosicion() . $jugador->getLado() . ' ' . $jugador->getJugador()->getNombreApellido());
+            }
+        }
+        // Busco defensores centrales
+        foreach ($this->getJugadores() as $jugador) {
+            if ($jugador->getPosicion() == 'DF' && $jugador->getLado() == 'C' && $jugador->getActivo()) {
+                $aux_contador += 1;
+                $aux_jugadores = Arr::add($aux_jugadores, $aux_contador, $jugador->getPosicion() . $jugador->getLado() . ' ' . $jugador->getJugador()->getNombreApellido());
+            }
+        }
+        // Busco laterales derechos
+        foreach ($this->getJugadores() as $jugador) {
+            if ($jugador->getPosicion() == 'DF' && $jugador->getLado() == 'D' && $jugador->getActivo()) {
+                $aux_contador += 1;
+                $aux_jugadores = Arr::add($aux_jugadores, $aux_contador, $jugador->getPosicion() . $jugador->getLado() . ' ' . $jugador->getJugador()->getNombreApellido());
+            }
+        }
+        // Busco medicampistas defensivos
+        foreach ($this->getJugadores() as $jugador) {
+            if ($jugador->getPosicion() == 'MD' && $jugador->getActivo()) {
+                $aux_contador += 1;
+                $aux_jugadores = Arr::add($aux_jugadores, $aux_contador, $jugador->getPosicion() . 'C ' . $jugador->getJugador()->getNombreApellido());
+            }
+        }
+        // Busco medicampistas izquierdos
+        foreach ($this->getJugadores() as $jugador) {
+            if ($jugador->getPosicion() == 'MC' && $jugador->getLado() == 'I' && $jugador->getActivo()) {
+                $aux_contador += 1;
+                $aux_jugadores = Arr::add($aux_jugadores, $aux_contador, $jugador->getPosicion() . $jugador->getLado() . ' ' . $jugador->getJugador()->getNombreApellido());
+            }
+        }
+        // Busco medicampistas centrales
+        foreach ($this->getJugadores() as $jugador) {
+            if ($jugador->getPosicion() == 'MC' && $jugador->getLado() == 'C' && $jugador->getActivo()) {
+                $aux_contador += 1;
+                $aux_jugadores = Arr::add($aux_jugadores, $aux_contador, $jugador->getPosicion() . $jugador->getLado() . ' ' . $jugador->getJugador()->getNombreApellido());
+            }
+        }
+        // Busco medicampistas derechos
+        foreach ($this->getJugadores() as $jugador) {
+            if ($jugador->getPosicion() == 'MC' && $jugador->getLado() == 'D' && $jugador->getActivo()) {
+                $aux_contador += 1;
+                $aux_jugadores = Arr::add($aux_jugadores, $aux_contador, $jugador->getPosicion() . $jugador->getLado() . ' ' . $jugador->getJugador()->getNombreApellido());
+            }
+        }
+        // Busco medicampistas ofensivos
+        foreach ($this->getJugadores() as $jugador) {
+            if ($jugador->getPosicion() == 'MO' && $jugador->getActivo()) {
+                $aux_contador += 1;
+                $aux_jugadores = Arr::add($aux_jugadores, $aux_contador, $jugador->getPosicion() . 'C ' . $jugador->getJugador()->getNombreApellido());
+            }
+        }
+        // Busco delanteros izquierdos
+        foreach ($this->getJugadores() as $jugador) {
+            if ($jugador->getPosicion() == 'DL' && $jugador->getLado() == 'I' && $jugador->getActivo()) {
+                $aux_contador += 1;
+                $aux_jugadores = Arr::add($aux_jugadores, $aux_contador, $jugador->getPosicion() . $jugador->getLado() . ' ' . $jugador->getJugador()->getNombreApellido());
+            }
+        }
+        // Busco delanteros centrales
+        foreach ($this->getJugadores() as $jugador) {
+            if ($jugador->getPosicion() == 'DL' && $jugador->getLado() == 'C' && $jugador->getActivo()) {
+                $aux_contador += 1;
+                $aux_jugadores = Arr::add($aux_jugadores, $aux_contador, $jugador->getPosicion() . $jugador->getLado() . ' ' . $jugador->getJugador()->getNombreApellido());
+            }
+        }
+        // Busco delanteros derechos
+        foreach ($this->getJugadores() as $jugador) {
+            if ($jugador->getPosicion() == 'DL' && $jugador->getLado() == 'D' && $jugador->getActivo()) {
+                $aux_contador += 1;
+                $aux_jugadores = Arr::add($aux_jugadores, $aux_contador, $jugador->getPosicion() . $jugador->getLado() . ' ' . $jugador->getJugador()->getNombreApellido());
+            }
+        }
+        return $aux_jugadores;
+    }
+
     /**
      * Retorna la sumatoria de una estadística del equipo
      * 

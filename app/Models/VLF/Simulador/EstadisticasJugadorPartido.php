@@ -43,7 +43,7 @@ class EstadisticasJugadorPartido extends Model
     /**
      * Suma un valor a la estadística del jugador
      * 
-     * @param ENUMEstaditicas(EstadisticaJugadorPartido) $estadistica
+     * @param ENUMEstaditicas<EstadisticaJugadorPartido> $estadistica
      * @param int $valor - Si no se envía valor, toma por defecto 1
      */
     public function sumarEstadistica(ENUMEstaditicas $estadistica, int $valor = 1)

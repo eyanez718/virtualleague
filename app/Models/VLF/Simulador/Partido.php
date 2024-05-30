@@ -104,11 +104,7 @@ class Partido extends Model
     public function simularPartido()
     {
         $aux_tiempo_juego_mitad = 45;
-        dump('Alineaciones');
-        dump($this->getEquipo(1)->getEquipo()->abreviatura . ' - ' . $this->getEquipo(1)->obtenerAlineacionNumerica());
-        $this->imprimirJugadores(1);
-        dump($this->getEquipo(2)->getEquipo()->abreviatura . ' - ' . $this->getEquipo(2)->obtenerAlineacionNumerica());
-        $this->imprimirJugadores(2);
+        $this->imprimirAlineaciones();
         // Genero variables auxiliares utilizables para el el cálculo de los minutos añadidos
         $aux_sustituciones = $aux_lesiones = $aux_faltas = 0;
         // For de cada mitad
@@ -121,37 +117,38 @@ class Partido extends Model
                 $aux_mitad = 2;
             }
             $aux_ultimo_minuto_mitad = $aux_inicio_mitad + $aux_tiempo_juego_mitad - 1;
-            $aux_en_tiempo_extra = false;
+            $aux_en_tiempo_anadido = false;
             
             // Juego los minutos de esta mitad
             // $aux_ultimo_minuto_mitad será incrementado por $aux_tiempo_aniadido
             // al final de la mitad
             for ($aux_minuto = $aux_minuto_formal = $aux_inicio_mitad; $aux_minuto <= $aux_ultimo_minuto_mitad; $aux_minuto++) {
+                //VOLVER
                 // Guardo el minuto actual
                 $this->setMinuto($aux_minuto);
                 // Limpio indicadores
-                $this->limpiar_indicadores_lesion_tarjetas();
+                $this->limpiarIndicadoresLesionTarjetas();
                 // Recalculo la fatiga
-                $this->recalcular_datos_equipo();
+                $this->recalcularDatosEquipo();
                 
                 // Para cada equipo calculo diferentes eventos
                 for ($i = 1; $i <= 2; $i++) { 
-                    $this->si_hay_tiro($i);
-                    $this->si_hay_falta($i);
-                    $this->random_lesion($i);
+                    $this->siHayTiro($i);
+                    $this->siHayFalta($i);
+                    $this->randomLesion($i);
 
                     //score_diff = team[j].score - team[!j].score;
                     //chequeo_condicionales($i);
                 }
 
-                // Chequeo si estoy en tiempo extra para acumular minutos de jugadores
-                if (!$aux_en_tiempo_extra) {
+                // Chequeo si estoy en tiempo añadido para acumular minutos de jugadores
+                if (!$aux_en_tiempo_anadido) {
                     $aux_minuto_formal += 1;
                     $this->actualizarMinutosJugadores();
                 }
 
-                if ($aux_minuto == $aux_ultimo_minuto_mitad && !$aux_en_tiempo_extra) {
-                    $aux_en_tiempo_extra = true;
+                if ($aux_minuto == $aux_ultimo_minuto_mitad && !$aux_en_tiempo_anadido) {
+                    $aux_en_tiempo_anadido = true;
 
                     // No debería haberse incrementado, pero por las dudas se decrementa
                     $aux_minuto_formal -= 1;
@@ -164,22 +161,82 @@ class Partido extends Model
                     $aux_minutos_anadidos = $this->calcularMinutosAnadidos($aux_sustituciones, $aux_lesiones, $aux_faltas);
                     $aux_ultimo_minuto_mitad += $aux_minutos_anadidos;
 
-                    //char buf[2000];
-                    //sprintf(buf, "%d", inj_time_length);
-                    //fprintf(comm, "\n%s\n", the_commentary().rand_comment("COMM_INJURYTIME", buf).c_str());
                     // Busco comentario
-                    dump(Str::replace('{m}', $aux_minutos_anadidos, ComentariosPartido::getComentario('COMENTARIO_TIEMPO_ANADIDO')));
+                    dump(Str::replace('{ma}', $aux_minutos_anadidos, Str::replace('{m}', $this->getMinuto(), ComentariosPartido::getComentario('COMENTARIO_TIEMPO_ANADIDO'))));
                 }
             }
         }
+        //////////////SUPLEMENTARIO
+        if ($this->getEquipo(1)->obtenerEstadistica(EstadisticasJugadorPartido::GOLES) == $this->getEquipo(2)->obtenerEstadistica(EstadisticasJugadorPartido::GOLES)) {
+            dump(ComentariosPartido::getComentario('COMENTARIO_FIN_PARTIDO'));
+            $aux_tiempo_juego_mitad_suplementario = 15;
+            for ($aux_inicio_mitad ; $aux_inicio_mitad < (2 * $aux_tiempo_juego_mitad_suplementario) + 90 ; $aux_inicio_mitad += $aux_tiempo_juego_mitad_suplementario) { 
+                if ($aux_inicio_mitad == 91) {
+                    dump(ComentariosPartido::getComentario('COMENTARIO_INICIO_SUPLEMENTARIO'));
+                    $aux_mitad = 1;
+                } else {
+                    dump(ComentariosPartido::getComentario('COMENTARIO_MITAD_SUPLEMENTARIO'));
+                    $aux_mitad = 2;
+                }
+                $aux_ultimo_minuto_mitad = $aux_inicio_mitad + $aux_tiempo_juego_mitad_suplementario - 1;
+                $aux_en_tiempo_anadido = false;
+                
+                // Juego los minutos de esta mitad
+                // $aux_ultimo_minuto_mitad será incrementado por $aux_tiempo_aniadido
+                // al final de la mitad
+                for ($aux_minuto = $aux_minuto_formal = $aux_inicio_mitad; $aux_minuto <= $aux_ultimo_minuto_mitad; $aux_minuto++) {
+                    // Guardo el minuto actual
+                    $this->setMinuto($aux_minuto);
+                    // Limpio indicadores
+                    $this->limpiarIndicadoresLesionTarjetas();
+                    // Recalculo la fatiga
+                    $this->recalcularDatosEquipo();
+                    
+                    // Para cada equipo calculo diferentes eventos
+                    for ($i = 1; $i <= 2; $i++) { 
+                        $this->siHayTiro($i);
+                        $this->siHayFalta($i);
+                        $this->randomLesion($i);
+    
+                        //score_diff = team[j].score - team[!j].score;
+                        //chequeo_condicionales($i);
+                    }
+    
+                    // Chequeo si estoy en tiempo añadido para acumular minutos de jugadores
+                    if (!$aux_en_tiempo_anadido) {
+                        $aux_minuto_formal += 1;
+                        $this->actualizarMinutosJugadores();
+                    }
+    
+                    if ($aux_minuto == $aux_ultimo_minuto_mitad && !$aux_en_tiempo_anadido) {
+                        $aux_en_tiempo_anadido = true;
+    
+                        // No debería haberse incrementado, pero por las dudas se decrementa
+                        $aux_minuto_formal -= 1;
+    
+                        // Actualizo las variables auxiliares
+                        $aux_sustituciones = ($this->getEquipo(1)->getSustituciones() + $this->getEquipo(2)->getSustituciones()) - $aux_sustituciones;
+                        $aux_lesiones = ($this->getEquipo(1)->obtenerCantidadLesionados() + $this->getEquipo(2)->obtenerCantidadLesionados()) - $aux_lesiones;
+                        $aux_faltas = ($this->getEquipo(1)->obtenerEstadistica(EstadisticasJugadorPartido::FALTAS) + $this->getEquipo(2)->obtenerEstadistica(EstadisticasJugadorPartido::FALTAS)) - $aux_faltas;
+    
+                        $aux_minutos_anadidos = $this->calcularMinutosAnadidos($aux_sustituciones, $aux_lesiones, $aux_faltas);
+                        $aux_ultimo_minuto_mitad += $aux_minutos_anadidos;
+    
+                        // Busco comentario
+                        dump(Str::replace('{ma}', $aux_minutos_anadidos, Str::replace('{m}', $this->getMinuto(), ComentariosPartido::getComentario('COMENTARIO_TIEMPO_ANADIDO'))));
+                    }
+                }
+            }
+        }
+        ///////////////SUPLEMENTARIO
+        ///////////////PENALES
+        if ($this->getEquipo(1)->obtenerEstadistica(EstadisticasJugadorPartido::GOLES) == $this->getEquipo(2)->obtenerEstadistica(EstadisticasJugadorPartido::GOLES)) {
+            dump(ComentariosPartido::getComentario('COMENTARIO_FIN_PARTIDO'));
+            $this->ejecutarTandaPenales();
+        }
+        ///////////////PENALES
         dump(ComentariosPartido::getComentario('COMENTARIO_FIN_PARTIDO'));
-        $this->reporteFinal();
-        dump('Jugadores que finalizaron el partido');
-        dump($this->getEquipo(1)->getEquipo()->abreviatura . ' - ' . $this->getEquipo(1)->obtenerAlineacionNumerica());
-        $this->imprimirJugadores(1);
-        dump($this->getEquipo(2)->getEquipo()->abreviatura . ' - ' . $this->getEquipo(2)->obtenerAlineacionNumerica());
-        $this->imprimirJugadores(2);
-        $this->imprimirMinutosJugados();
+        $this->imprimirReporteFinal();
     }
 
     /**
@@ -187,7 +244,7 @@ class Partido extends Model
      * 
      * (Estos son usados por condicionales).
      */
-    private function limpiar_indicadores_lesion_tarjetas(): void
+    private function limpiarIndicadoresLesionTarjetas(): void
     {
         $aux_indicador_amarillas = [];
         $aux_indicador_amarillas = Arr::add($aux_indicador_amarillas, 1, 0);
@@ -208,7 +265,7 @@ class Partido extends Model
      * 
      * Esta recaulcula la fatiga del equipo
      */
-    private function recalcular_datos_equipo(): void
+    private function recalcularDatosEquipo(): void
     {
         for ($indiceEquipo = 1; $indiceEquipo <= 2; $indiceEquipo++) {
             // Recalculo la fatiga
@@ -221,7 +278,7 @@ class Partido extends Model
      * 
      * @param int $indiceEquipo
      */
-    private function si_hay_tiro(int $indiceEquipo)
+    private function siHayTiro(int $indiceEquipo)
     {
         $aux_tirador = 0;
         $aux_asistidor = 0;
@@ -279,7 +336,7 @@ class Partido extends Model
                 $this->getEquipo($indiceEquipo)->obtenerJugador($aux_tirador)->getEstadisticas()->sumarEstadistica(EstadisticasJugadorPartido::TIROS);
                 
                 // Compruebo si el tiro va al arco
-                if ($this->si_hay_tiro_al_arco($indiceEquipo, $aux_tirador)) {
+                if ($this->siHayTiroAlArco($indiceEquipo, $aux_tirador)) {
                     //REVISAR SI HAY QUE SUMAR ESTADISTICAS EN EL EQUIPO O OBTENER LA SUMA DE LOS JUGADORES
                     //team[a].finalshots_on++;
 
@@ -287,12 +344,12 @@ class Partido extends Model
                     $this->getEquipo($indiceEquipo)->obtenerJugador($aux_tirador)->getEstadisticas()->sumarEstadistica(EstadisticasJugadorPartido::TIROS_AL_ARCO);
                     
                     // Compruebo si el tiro termina en gol
-                    if ($this->si_hay_gol($indiceEquipo, $aux_tirador)) {
+                    if ($this->siHayGol($indiceEquipo, $aux_tirador)) {
                         // Busco comentario
                         dump(ComentariosPartido::getComentario('GOL_CONVERTIDO'));
                         
                         // Compruebo si el gol fue anulado
-                        if (!$this->si_gol_anulado()) {
+                        if (!$this->siGolAnulado()) {
                             //REVISAR SI HAY QUE SUMAR ESTADISTICAS EN EL EQUIPO O OBTENER LA SUMA DE LOS JUGADORES
                             //team[a].score++;
 
@@ -380,7 +437,7 @@ class Partido extends Model
      * @param int $auxTirador
      * @return bool
      */
-    private function si_hay_tiro_al_arco(int $indiceEquipo, int $auxTirador): bool
+    private function siHayTiroAlArco(int $indiceEquipo, int $auxTirador): bool
     {
         if ($this->randomp((int) (5800.0 * $this->getEquipo($indiceEquipo)->obtenerJugador($auxTirador)->getFatiga())))
             return true;
@@ -395,7 +452,7 @@ class Partido extends Model
      * @param int $auxTirador
      * @return bool
      */
-    private function si_hay_gol(int $indiceEquipo, int $auxTirador): bool
+    private function siHayGol(int $indiceEquipo, int $auxTirador): bool
     {
         if ($indiceEquipo == 1) {
             $indiceEquipoRival = 2;
@@ -429,7 +486,7 @@ class Partido extends Model
      * 
      * @return bool
      */
-    private function si_gol_anulado(): bool
+    private function siGolAnulado(): bool
     {
         if ($this->randomp(500)) {
             return true;
@@ -443,7 +500,7 @@ class Partido extends Model
      * 
      * @param int $indiceEquipo
      */
-    private function si_hay_falta(int $indiceEquipo)
+    private function siHayFalta(int $indiceEquipo)
     {
         if ($indiceEquipo == 1) {
             $indiceEquipoRival = 2;
@@ -730,7 +787,7 @@ class Partido extends Model
      * 
      * @param int $indiceEquipo
      */
-    private function random_lesion(int $indiceEquipo)
+    private function randomLesion(int $indiceEquipo)
     {
         if ($indiceEquipo == 1) {
             $indiceEquipoRival = 2;
@@ -809,26 +866,217 @@ class Partido extends Model
      */
     private function calcularMinutosAnadidos(int $cantidadSustituciones, int $cantidadLesiones, int $cantidadFaltas): int
     {
-        dump('sustituciones ' . $cantidadSustituciones . ' lesiones ' . $cantidadLesiones . ' faltas ' .$cantidadFaltas);
         return (int) ceil($cantidadSustituciones * 0.5 + $cantidadLesiones * 0.5 + $cantidadFaltas * 0.5);
     }
 
-    private function imprimirMinutosJugados()
+
+    /**
+     * 
+     */
+    private function ejecutarTandaPenales()
     {
+        dump(ComentariosPartido::getComentario('COMENTARIO_TANDA_PENALES'));
+        $aux_pateadores_equipo_1 = [];
+        $aux_pateadores_equipo_2 = [];
+        // Obtengo los pateadores de penales de cada equipo
         for ($i = 1; $i <= 2; $i++) { 
             foreach ($this->getEquipo($i)->getJugadores() as $jugador) {
-                dump('jugador: ' . $jugador->getJugador()->nombre . ' minutos: '. $jugador->getEstadisticas()->obtenerEstadistica(EstadisticasJugadorPartido::MINUTOS));
+                if ($i == 1) {
+                    if ($jugador->getActivo()) {
+                        $aux_pateadores_equipo_1 = Arr::set($aux_pateadores_equipo_1, $jugador->getJugador()->id, $jugador->getJugador()->habilidad->habilidad_tiro);
+                    }
+                } else {
+                    if ($jugador->getActivo()) {
+                        $aux_pateadores_equipo_2 = Arr::set($aux_pateadores_equipo_2, $jugador->getJugador()->id, $jugador->getJugador()->habilidad->habilidad_tiro);
+                    }
+                }
+                
             }
+        }
+        $aux_pateadores_equipo_1 = Arr::sortDesc($aux_pateadores_equipo_1);
+        $aux_pateadores_equipo_2 = Arr::sortDesc($aux_pateadores_equipo_2);
+        $aux_pateadores_final_1 = [];
+        $aux_pateadores_final_2 = [];
+        $aux_cantidad_pateadores = 0;
+        if (count($aux_pateadores_equipo_1) == count($aux_pateadores_equipo_2)) {
+            $aux_cantidad_pateadores = count($aux_pateadores_equipo_1);
+        } elseif (count($aux_pateadores_equipo_1) < count($aux_pateadores_equipo_2)) {
+            $aux_cantidad_pateadores = count($aux_pateadores_equipo_1);
+        } else {
+            $aux_cantidad_pateadores = count($aux_pateadores_equipo_2);
+        }
+        $aux_contador = 0;
+        foreach ($aux_pateadores_equipo_1 as $key => $value) {
+            if ($aux_contador < $aux_cantidad_pateadores) {
+                $aux_contador += 1;
+                $aux_pateadores_final_1 = Arr::add($aux_pateadores_final_1, $aux_contador, $key);
+            }
+        }
+        $aux_contador = 0;
+        foreach ($aux_pateadores_equipo_2 as $key => $value) {
+            if ($aux_contador < $aux_cantidad_pateadores) {
+                $aux_contador += 1;
+                $aux_pateadores_final_2 = Arr::add($aux_pateadores_final_2, $aux_contador, $key);
+            }
+        }
+        $aux_goles_equipo_1 = $aux_goles_equipo_2 = 0;
+        /* Main penalties loop 
+        Each team takes 5 penalties (the shootout will stop if
+        it will be obvious that one team won at some stage before
+        the end, ie. one team leading 4-1 etc.) 
+        */
+        $auxNumeroPenal = 0;
+        for ($auxNumeroPenal = 1; $auxNumeroPenal <= 5; $auxNumeroPenal++) {
+            // Busco el comentario
+            dump(Str::replace('{n}', $auxNumeroPenal, ComentariosPartido::getComentario('RONDA_TANTA_PENALES')));
+            for ($auxIndiceEquipo = 1; $auxIndiceEquipo <= 2; $auxIndiceEquipo++) {
+                if ($auxIndiceEquipo == 1) {
+                    //dump(Arr::get($aux_pateadores_final_1, $auxNumeroPenal));
+                    if ($this->ejecutarPenal($auxIndiceEquipo, Arr::get($aux_pateadores_final_1, $auxNumeroPenal))) {
+                        $aux_goles_equipo_1 += 1;
+                    }
+                } else {
+                    //dump(Arr::get($aux_pateadores_final_2, $auxNumeroPenal));
+                    if ($this->ejecutarPenal($auxIndiceEquipo, Arr::get($aux_pateadores_final_2, $auxNumeroPenal))) {
+                        $aux_goles_equipo_2 += 1;
+                    }
+                }
+                // Busco comentario
+                dump(Str::replace('{e1}', $this->getEquipo(1)->getEquipo()->abreviatura, Str::replace('{g1}', $aux_goles_equipo_1, Str::replace('{g2}', $aux_goles_equipo_2, Str::replace('{e2}', $this->getEquipo(2)->getEquipo()->abreviatura, ComentariosPartido::getComentario('COMENTARIO_RESULTADO'))))));
+                
+                /* Special condition for stopping the PKs 
+                Algorithm: if after a certain kick, the amount of kicks 
+                left for team A is less than the score B - A            
+                there is no point to proceed with the PKs, as           
+                team A loses anyway.                                    
+                */
+                $aux_diferencia_goles = ($aux_goles_equipo_1 - $aux_goles_equipo_2);
+                if (
+                    (($auxIndiceEquipo == 1) && (($aux_diferencia_goles > 5 - ($auxNumeroPenal-1)) || ((-$aux_diferencia_goles) > 4 - ($auxNumeroPenal-1))))
+                        ||
+                    (($auxIndiceEquipo == 2) && (($aux_diferencia_goles > 4 - ($auxNumeroPenal-1)) || ((-$aux_diferencia_goles) > 4 - ($auxNumeroPenal-1))))
+                ) {
+                    goto frenarPenales;
+                }
+            }
+        }
+        frenarPenales:
+
+        /* If there is still a draw after 5 penalties by each team,
+           both teams will take one penalty at a time until one team
+           will lead (after an even amount of shots was taken by each team).
+        */
+        if ($aux_diferencia_goles == 0) {
+            /* Flag indicating when penalties can be stopped */
+            $aux_partido_terminado = false;
+        
+            /* Until the game is decided (one team leads after both teams
+            took the same amount of shots)
+            */
+            while (!$aux_partido_terminado) {
+                // Busco el comentario
+                dump(Str::replace('{n}', $auxNumeroPenal, ComentariosPartido::getComentario('RONDA_TANTA_PENALES')));
+                for ($auxIndiceEquipo = 1; $auxIndiceEquipo <= 2; $auxIndiceEquipo++) {
+                    if ($auxIndiceEquipo == 1) {
+                        if ($this->ejecutarPenal($auxIndiceEquipo, Arr::get($aux_pateadores_final_1, $auxNumeroPenal))) {
+                            $aux_goles_equipo_1 += 1;
+                        }
+                    } else {
+                        if ($this->ejecutarPenal($auxIndiceEquipo, Arr::get($aux_pateadores_final_2, $auxNumeroPenal))) {
+                            $aux_goles_equipo_2 += 1;
+                        }
+                    }
+                    // Busco comentario
+                    dump(Str::replace('{e1}', $this->getEquipo(1)->getEquipo()->abreviatura, Str::replace('{g1}', $aux_goles_equipo_1, Str::replace('{g2}', $aux_goles_equipo_2, Str::replace('{e2}', $this->getEquipo(2)->getEquipo()->abreviatura, ComentariosPartido::getComentario('COMENTARIO_RESULTADO'))))));
+                }
+                $aux_diferencia_goles = $aux_goles_equipo_1 - $aux_goles_equipo_2;
+                // Chequeo si la tanda de penales fue terminado
+                if ($aux_diferencia_goles != 0) {
+                    $aux_partido_terminado = true;
+                } else {
+                    $aux_partido_terminado = false;
+                
+                    /* prepare next players in each team */
+                    if ($auxNumeroPenal == $aux_cantidad_pateadores)
+                        $auxNumeroPenal = 1;
+                    else {
+                        $auxNumeroPenal++;
+                    }
+                }
+            }
+        }
+        if ($aux_diferencia_goles > 0) {
+            //fprintf(comm, "\n%s", the_commentary().rand_comment("WONPENALTYSHOOTOUT", team[0].name).c_str());
+            // Busco el comentario
+            dump(Str::replace('{e}', $this->getEquipo(1)->getEquipo()->nombre, ComentariosPartido::getComentario('GANADOR_TANTA_PENALES')));
+        } else {
+            //fprintf(comm, "\n%s", the_commentary().rand_comment("WONPENALTYSHOOTOUT", team[1].name).c_str());
+            // Busco el comentario
+            dump(Str::replace('{e}', $this->getEquipo(2)->getEquipo()->nombre, ComentariosPartido::getComentario('GANADOR_TANTA_PENALES')));
         }
     }
 
     /**
-     * Imprime el detalle final del partido
-     */
-    // REVISAR
-    private function reporteFinal(): void
+     * 
+    */
+    private function ejecutarPenal(int $indiceEquipo, int $idJugador): bool
     {
-        dump('******************************************');
+        if ($indiceEquipo == 1) {
+            $indiceEquipoRival = 2;
+        } else {
+            $indiceEquipoRival = 1;
+        }
+        //fprintf(comm, "\n%s", the_commentary().rand_comment("PENALTY", PenaltyTaker[nTeam][nPenaltyNum].name).c_str());
+        // Busco el comentario
+        dump(Str::replace('{j}', $this->getEquipo($indiceEquipo)->obtenerJugador($idJugador)->getJugador()->getNombreApellido(), ComentariosPartido::getComentario('PENAL')));
+        // Chequeo si el penal fue convertido
+        //if ($this->randomp(8000 + PenaltyTaker[nTeam][nPenaltyNum].sh*100 - team[!nTeam].player[team[!nTeam].current_gk].st*100)) {
+        if ($this->randomp(8000 + $this->getEquipo($indiceEquipo)->obtenerJugador($idJugador)->getJugador()->habilidad->habilidad_tiro * 100 -
+                $this->getEquipo($indiceEquipoRival)->obtenerArquero()->getJugador()->habilidad->habilidad_arquero * 100)) {
+            //fprintf(comm, "%s", the_commentary().rand_comment("GOAL").c_str());;
+            // Busco el comentario
+            dump(ComentariosPartido::getComentario('GOL_CONVERTIDO'));
+            return true;
+            //PenScore[nTeam]++;
+            /*fprintf(comm, "\n          ...  %s %d-%d %s...", team[0].name, PenScore[0],
+                PenScore[1],  team[1].name);*/
+        } else {
+            $rnd = rand(1, 10);
+            if ($rnd < 5) {
+                dump(Str::replace('{j}', $this->getEquipo($indiceEquipoRival)->obtenerArquero()->getJugador()->getNombreApellido(), ComentariosPartido::getComentario('ATAJADA')));
+                /*fprintf(comm, "%s", the_commentary().rand_comment("SAVE", 
+                                    team[!nTeam].player[team[!nTeam].current_gk].name).c_str());*/
+            } else {
+                dump(ComentariosPartido::getComentario('TIRO_AFUERA'));
+                /*fprintf(comm, "%s", the_commentary().rand_comment("OFFTARGET", 
+                                    team[!nTeam].player[team[!nTeam].current_gk].name).c_str());*/
+            }
+            return false;
+        }
+    }
+
+    /**
+     * Imprime las alineaciones iniciales en el reporte del partido
+     */
+    private function imprimirAlineaciones(): void
+    {
+        dump(ComentariosPartido::getComentario('COMENTARIO_ALINEACIONES_PARTIDO'));
+        dump(Str::padLeft($this->getEquipo(1)->getEquipo()->abreviatura, 40) . ' - ' . $this->getEquipo(2)->getEquipo()->abreviatura);
+        dump(Str::padLeft($this->getEquipo(1)->obtenerAlineacionNumerica(), 40) . ' - ' . $this->getEquipo(2)->obtenerAlineacionNumerica());
+        $auxAlineacionEquipo1 = $this->getEquipo(1)->obtenerJugadoresIniciales(1);
+        $auxAlineacionEquipo2 = $this->getEquipo(2)->obtenerJugadoresIniciales(2);
+        for ($i = 1; $i <= count($auxAlineacionEquipo1); $i++) { 
+            dump(Str::padLeft(Arr::get($auxAlineacionEquipo1, $i), 40) . ' - ' . Arr::get($auxAlineacionEquipo2, $i));
+        }
+        dump('');
+    }
+
+    /**
+     * Imprime las estadísticas finales del partido en el reporte del partido
+     */
+    private function imprimirReporteFinal(): void
+    {
+        dump('');
         dump('Resultado final: ' . $this->getEquipo(1)->getEquipo()->abreviatura . ' (' . $this->getEquipo(1)->obtenerEstadistica(EstadisticasJugadorPartido::GOLES) . ') - (' . $this->getEquipo(2)->obtenerEstadistica(EstadisticasJugadorPartido::GOLES) . ') ' . $this->getEquipo(2)->getEquipo()->abreviatura);
         if ($this->getEquipo(1)->obtenerEstadistica(EstadisticasJugadorPartido::GOLES) == $this->getEquipo(2)->obtenerEstadistica(EstadisticasJugadorPartido::GOLES)) {
             dump('Partido empatado');
@@ -837,99 +1085,74 @@ class Partido extends Model
         } else {
             dump('Ganó ' . $this->getEquipo(2)->getEquipo()->nombre);
         }
-        dump('******************************************');
-        dump('REPORTE FINAL');
-        dump($this->getEquipo(1)->getEquipo()->abreviatura . ' - ' . $this->getEquipo(2)->getEquipo()->abreviatura);
-        dump('Goles: ' . $this->getEquipo(1)->obtenerEstadistica(EstadisticasJugadorPartido::GOLES) . ' - ' . $this->getEquipo(2)->obtenerEstadistica(EstadisticasJugadorPartido::GOLES));
-        dump('Tiros: ' . $this->getEquipo(1)->obtenerEstadistica(EstadisticasJugadorPartido::TIROS) . ' - ' . $this->getEquipo(2)->obtenerEstadistica(EstadisticasJugadorPartido::TIROS));
-        dump('Tiros al arco: ' . $this->getEquipo(1)->obtenerEstadistica(EstadisticasJugadorPartido::TIROS_AL_ARCO) . ' - ' . $this->getEquipo(2)->obtenerEstadistica(EstadisticasJugadorPartido::TIROS_AL_ARCO));
-        dump('Tiros afuera: ' . $this->getEquipo(1)->obtenerEstadistica(EstadisticasJugadorPartido::TIROS_AFUERA) . ' - ' . $this->getEquipo(2)->obtenerEstadistica(EstadisticasJugadorPartido::TIROS_AFUERA));
-        dump('Faltas: ' . $this->getEquipo(1)->obtenerEstadistica(EstadisticasJugadorPartido::FALTAS) . ' - ' . $this->getEquipo(2)->obtenerEstadistica(EstadisticasJugadorPartido::FALTAS));
-        dump('Tarjetas amarillas: ' . $this->getEquipo(1)->obtenerEstadistica(EstadisticasJugadorPartido::TARJETAS_AMARILLAS) . ' - ' . $this->getEquipo(2)->obtenerEstadistica(EstadisticasJugadorPartido::TARJETAS_AMARILLAS));
-        dump('Tarjetas rojas: ' . $this->getEquipo(1)->obtenerEstadistica(EstadisticasJugadorPartido::TARJETAS_ROJAS) . ' - ' . $this->getEquipo(2)->obtenerEstadistica(EstadisticasJugadorPartido::TARJETAS_ROJAS));
-        dump('Cambios realizados: ' . $this->getEquipo(1)->getSustituciones() . ' - ' . $this->getEquipo(2)->getSustituciones());
-        dump('******************************************');
+        dump('');
+        $this->imprimirEstadisticasEquipos();
+        dump('');
+        $this->imprimirEstadisticasJugadores();
     }
 
     /**
-     * Imprime los jugadores activos
+     * Imprime las estadísticas finales del equipo en el reporte del partido
      */
-    // REVISAR
-    public function imprimirJugadores(int $indiceEquipo)
+    private function imprimirEstadisticasEquipos(): void
     {
-        // Busco arquero
-        foreach ($this->getEquipo($indiceEquipo)->getJugadores() as $jugador) {
-            if ($jugador->getPosicion() == 'AR' && $jugador->getActivo()) {
-                dump($jugador->getPosicion() . '  - ' . $jugador->getJugador()->nombre);
-            }
-        }
-        // Busco laterales izquierdos
-        foreach ($this->getEquipo($indiceEquipo)->getJugadores() as $jugador) {
-            if ($jugador->getPosicion() == 'DF' && $jugador->getLado() == 'I' && $jugador->getActivo()) {
-                dump($jugador->getPosicion() . $jugador->getLado() . ' - ' . $jugador->getJugador()->nombre);
-            }
-        }
-        // Busco defensores centrales
-        foreach ($this->getEquipo($indiceEquipo)->getJugadores() as $jugador) {
-            if ($jugador->getPosicion() == 'DF' && $jugador->getLado() == 'C' && $jugador->getActivo()) {
-                dump($jugador->getPosicion() . $jugador->getLado() . ' - ' . $jugador->getJugador()->nombre);
-            }
-        }
-        // Busco laterales derechos
-        foreach ($this->getEquipo($indiceEquipo)->getJugadores() as $jugador) {
-            if ($jugador->getPosicion() == 'DF' && $jugador->getLado() == 'D' && $jugador->getActivo()) {
-                dump($jugador->getPosicion() . $jugador->getLado() . ' - ' . $jugador->getJugador()->nombre);
-            }
-        }
-        // Busco medicampistas defensivos
-        foreach ($this->getEquipo($indiceEquipo)->getJugadores() as $jugador) {
-            if ($jugador->getPosicion() == 'MD' && $jugador->getActivo()) {
-                dump($jugador->getPosicion() . 'C - ' . $jugador->getJugador()->nombre);
-            }
-        }
-        // Busco medicampistas izquierdos
-        foreach ($this->getEquipo($indiceEquipo)->getJugadores() as $jugador) {
-            if ($jugador->getPosicion() == 'MC' && $jugador->getLado() == 'I' && $jugador->getActivo()) {
-                dump($jugador->getPosicion() . $jugador->getLado() . ' - ' . $jugador->getJugador()->nombre);
-            }
-        }
-        // Busco medicampistas centrales
-        foreach ($this->getEquipo($indiceEquipo)->getJugadores() as $jugador) {
-            if ($jugador->getPosicion() == 'MC' && $jugador->getLado() == 'C' && $jugador->getActivo()) {
-                dump($jugador->getPosicion() . $jugador->getLado() . ' - ' . $jugador->getJugador()->nombre);
-            }
-        }
-        // Busco medicampistas derechos
-        foreach ($this->getEquipo($indiceEquipo)->getJugadores() as $jugador) {
-            if ($jugador->getPosicion() == 'MC' && $jugador->getLado() == 'D' && $jugador->getActivo()) {
-                dump($jugador->getPosicion() . $jugador->getLado() . ' - ' . $jugador->getJugador()->nombre);
-            }
-        }
-        // Busco medicampistas ofensivos
-        foreach ($this->getEquipo($indiceEquipo)->getJugadores() as $jugador) {
-            if ($jugador->getPosicion() == 'MO' && $jugador->getActivo()) {
-                dump($jugador->getPosicion() . 'C - ' . $jugador->getJugador()->nombre);
-            }
-        }
-        // Busco delanteros izquierdos
-        foreach ($this->getEquipo($indiceEquipo)->getJugadores() as $jugador) {
-            if ($jugador->getPosicion() == 'DL' && $jugador->getLado() == 'I' && $jugador->getActivo()) {
-                dump($jugador->getPosicion() . $jugador->getLado() . ' - ' . $jugador->getJugador()->nombre);
-            }
-        }
-        // Busco delanteros centrales
-        foreach ($this->getEquipo($indiceEquipo)->getJugadores() as $jugador) {
-            if ($jugador->getPosicion() == 'DL' && $jugador->getLado() == 'C' && $jugador->getActivo()) {
-                dump($jugador->getPosicion() . $jugador->getLado() . ' - ' . $jugador->getJugador()->nombre);
-            }
-        }
-        // Busco delanteros derechos
-        foreach ($this->getEquipo($indiceEquipo)->getJugadores() as $jugador) {
-            if ($jugador->getPosicion() == 'DL' && $jugador->getLado() == 'D' && $jugador->getActivo()) {
-                dump($jugador->getPosicion() . $jugador->getLado() . ' - ' . $jugador->getJugador()->nombre);
+        dump(ComentariosPartido::getComentario('COMENTARIO_ESTADISTICAS_EQUIPOS_PARTIDO'));
+        dump(Str::padLeft($this->getEquipo(1)->getEquipo()->abreviatura, 27) . ' - ' . $this->getEquipo(2)->getEquipo()->abreviatura);
+        dump(Str::padRight('Goles:', 25) . Str::padLeft($this->getEquipo(1)->obtenerEstadistica(EstadisticasJugadorPartido::GOLES), 2) . ' - ' . $this->getEquipo(2)->obtenerEstadistica(EstadisticasJugadorPartido::GOLES));
+        dump(Str::padRight('Tiros:', 25) . Str::padLeft($this->getEquipo(1)->obtenerEstadistica(EstadisticasJugadorPartido::TIROS), 2) . ' - ' . $this->getEquipo(2)->obtenerEstadistica(EstadisticasJugadorPartido::TIROS));
+        dump(Str::padRight('Tiros al arco:', 25) . Str::padLeft($this->getEquipo(1)->obtenerEstadistica(EstadisticasJugadorPartido::TIROS_AL_ARCO), 2) . ' - ' . $this->getEquipo(2)->obtenerEstadistica(EstadisticasJugadorPartido::TIROS_AL_ARCO));
+        dump(Str::padRight('Tiros afuera:', 25) . Str::padLeft($this->getEquipo(1)->obtenerEstadistica(EstadisticasJugadorPartido::TIROS_AFUERA), 2) . ' - ' . $this->getEquipo(2)->obtenerEstadistica(EstadisticasJugadorPartido::TIROS_AFUERA));
+        dump(Str::padRight('Faltas:', 25) . Str::padLeft($this->getEquipo(1)->obtenerEstadistica(EstadisticasJugadorPartido::FALTAS), 2) . ' - ' . $this->getEquipo(2)->obtenerEstadistica(EstadisticasJugadorPartido::FALTAS));
+        dump(Str::padRight('Tarjetas amarillas:', 25) . Str::padLeft($this->getEquipo(1)->obtenerEstadistica(EstadisticasJugadorPartido::TARJETAS_AMARILLAS), 2) . ' - ' . $this->getEquipo(2)->obtenerEstadistica(EstadisticasJugadorPartido::TARJETAS_AMARILLAS));
+        dump(Str::padRight('Tarjetas rojas:', 25) . Str::padLeft($this->getEquipo(1)->obtenerEstadistica(EstadisticasJugadorPartido::TARJETAS_ROJAS), 2) . ' - ' . $this->getEquipo(2)->obtenerEstadistica(EstadisticasJugadorPartido::TARJETAS_ROJAS));
+        dump(Str::padRight('Cambios realizados:', 25) . Str::padLeft($this->getEquipo(1)->getSustituciones(), 2) . ' - ' . $this->getEquipo(2)->getSustituciones());
+    }
+
+    /**
+     * Imprime las estadísticas de los jugadores en el reporte del partido
+     */
+    private function imprimirEstadisticasJugadores()
+    {
+        dump(ComentariosPartido::getComentario('COMENTARIO_ESTADISTICAS_JUGADORES_PARTIDO'));
+        for ($i = 1; $i <= 2; $i++) { 
+            dump('Estadísticas ' . $this->getEquipo($i)->getEquipo()->nombre);
+            dump(
+                Str::padRight('Nombre', 40) .
+                Str::padLeft('MIN', 4) .
+                Str::padLeft('ATA', 4) .
+                Str::padLeft('GOC', 4) .
+                Str::padLeft('QUI', 4) .
+                Str::padLeft('PAS', 4) .
+                Str::padLeft('TIR', 4) .
+                Str::padLeft('TAA', 4) .
+                Str::padLeft('TAF', 4) .
+                Str::padLeft('GOL', 4) .
+                Str::padLeft('ASI', 4) .
+                Str::padLeft('FAL', 4) .
+                Str::padLeft('TAM', 4) .
+                Str::padLeft('TAR', 4)
+            );
+            foreach ($this->getEquipo($i)->getJugadores() as $jugador) {
+                dump(
+                    Str::padRight($jugador->getJugador()->getNombreApellido(), 40) .
+                    Str::padLeft($jugador->getEstadisticas()->obtenerEstadistica(EstadisticasJugadorPartido::MINUTOS), 4) .
+                    Str::padLeft($jugador->getEstadisticas()->obtenerEstadistica(EstadisticasJugadorPartido::ATAJADAS), 4) .
+                    Str::padLeft($jugador->getEstadisticas()->obtenerEstadistica(EstadisticasJugadorPartido::GOLES_CONCEDIDOS), 4) .
+                    Str::padLeft($jugador->getEstadisticas()->obtenerEstadistica(EstadisticasJugadorPartido::QUITES), 4) .
+                    Str::padLeft($jugador->getEstadisticas()->obtenerEstadistica(EstadisticasJugadorPartido::PASES_CLAVE), 4) .
+                    Str::padLeft($jugador->getEstadisticas()->obtenerEstadistica(EstadisticasJugadorPartido::TIROS), 4) .
+                    Str::padLeft($jugador->getEstadisticas()->obtenerEstadistica(EstadisticasJugadorPartido::TIROS_AL_ARCO), 4) .
+                    Str::padLeft($jugador->getEstadisticas()->obtenerEstadistica(EstadisticasJugadorPartido::TIROS_AFUERA), 4) .
+                    Str::padLeft($jugador->getEstadisticas()->obtenerEstadistica(EstadisticasJugadorPartido::GOLES), 4) .
+                    Str::padLeft($jugador->getEstadisticas()->obtenerEstadistica(EstadisticasJugadorPartido::ASISTENCIAS), 4) .
+                    Str::padLeft($jugador->getEstadisticas()->obtenerEstadistica(EstadisticasJugadorPartido::FALTAS), 4) .
+                    Str::padLeft($jugador->getEstadisticas()->obtenerEstadistica(EstadisticasJugadorPartido::TARJETAS_AMARILLAS), 4) .
+                    Str::padLeft($jugador->getEstadisticas()->obtenerEstadistica(EstadisticasJugadorPartido::TARJETAS_ROJAS), 4)
+                );
             }
         }
     }
+
 
     /**
      *  GETTERS Y SETTERS

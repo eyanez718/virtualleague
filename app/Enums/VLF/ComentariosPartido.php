@@ -131,11 +131,19 @@ enum ComentariosPartido: string
    case TARJETA_ROJA_2 = '           ... ¡Es tarjeta roja! Fin del partido para él';
    case TARJETA_ROJA_3 = '           ... ¡Le muestran la tarjeta roja!';
    // Comentarios genéricos
+   case COMENTARIO_ALINEACIONES_PARTIDO_1 = '*******  ALINEACIONES INICIALES  *******';
    case COMENTARIO_INICIO_PARTIDO_1 = '**********  INICIO DE PARTIDO  ***********';
    case COMENTARIO_MITAD_PARTIDO_1 = '*************  ENTRETIEMPO  **************';
    case COMENTARIO_FIN_PARTIDO_1 = '**********  FINAL DEL PARTIDO  ***********';
+   case COMENTARIO_ESTADISTICAS_EQUIPOS_PARTIDO_1 = '*********  ESTADISTICAS EQUIPOS  *********';
+   case COMENTARIO_ESTADISTICAS_JUGADORES_PARTIDO_1 = '********  ESTADISTICAS JUGADORES  ********';
+   case COMENTARIO_INICIO_SUPLEMENTARIO_1 = '**********  INICIO DE ALARGUE  ***********';
+   case COMENTARIO_MITAD_SUPLEMENTARIO_1 = '*********  ENTRETIEMPO ALARGUE  **********';
    case COMENTARIO_RESULTADO_1 = '           ... {e1} ({g1}) - ({g2}) {e2}';
-   case COMENTARIO_TIEMPO_ANADIDO_1 = 'El árbitro agrega {m} minutos de añadido';
+   case COMENTARIO_TIEMPO_ANADIDO_1 = 'Mín. {m}: El árbitro agrega {ma} minutos de añadido';
+   case COMENTARIO_TANDA_PENALES_1 = '***********  TANDA DE PENALES  ************';
+   case GANADOR_TANTA_PENALES_1 = '      ... {e} gana la tanda de penales'; // {e} = equipo
+   case RONDA_TANTA_PENALES_1 = '      ... Comienza la ronda {n} de la tanda'; // {n} = numero de ronda de penales
 
    // Comentarios aún no usados
    // {m} = minuto, {e} = equipo, {t} = táctica
@@ -143,8 +151,7 @@ enum ComentariosPartido: string
    // Comentarios genéricos
    //[COMM_SHOTSOFFTARGET] {\nShots off target}
    //[COMM_SHOTSONTARGET] {\nShots on target}
-   case COMENTARIO_TANDA_PENALES_1 = '***********  TANDA DE PENALES  ************';
-   case GANADOR_TANTA_PENALES_1 = '           ...  {e} gana la tanda de penales'; // {e} = equipo
+   
    //[COMM_SCORE] {\nScore}
    //[COMM_STATISTICS] {Player statistics for: %s}
 
