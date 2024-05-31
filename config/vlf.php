@@ -6,6 +6,8 @@ return [
         'numero_suplentes' => 5,
         'bonus_localia' => 200,
         'sustituciones' => 3,
+        'suplementario' => true,
+        'penales' => true,
         'posiciones_jugador' => [
             'AR' => ['nombre' => 'Arquero'],
             'DF' => ['nombre' => 'Defensor'],

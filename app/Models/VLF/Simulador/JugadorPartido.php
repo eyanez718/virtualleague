@@ -34,29 +34,25 @@ class JugadorPartido extends Model
         // Asigno estadísticas del partido
         $this->setEstadisticas(new EstadisticasJugadorPartido);
     }
+
     /**
-     * Each player has a nominal_fatigue_per_minute rating that's
-     * calculated once, based on his stamina.
+     * Cada jugador tiene una calificación de fatiga_nominal_por_minuto que se calcula en función de su resistencia.
      * 
-     * I'd like the average rating be 0.031 - so that an average player
-     * (stamina = 50) will lose 30 fitness points during a full game.
+     * Lo ideal sería que la calificación promedio fuera 0,031, de modo que un jugador promedio (resistencia = 50)
+     * pierda 30 puntos de condición física durante un juego completo.
      * 
-     * The range is approximately 50 - 10 points, and the stamina range
-     * is 1-99. So, first the ratio is normalized and then subtracted
-     * from the average 0.031 (which, times 90 minutes, is 0.279).
-     * The formula for each player is:
+     * El rango es de aproximadamente 50 a 10 puntos y el rango de resistencia es de 1 a 99.
+     * Entonces, primero se normaliza la relación y luego se resta del promedio 0,031
+     * (que, multiplicado por 90 minutos, es 0,279). La fórmula para cada jugador es:
      * 
-     * fatigue            stamina - 50
-     * ------- = 0.0031 - ------------  * 0.0022
-     *  minute                 50
+     *  fatuga            resistencia - 50
+     * ------- = 0.0031 - ----------------  * 0.0022
+     *  minuto                   50
      * 
+     * Esto da (aproximadamente) 30 puntos de condición física perdidos para los jugadores promedio,
+     * 50 para la peor resistencia y 10 para la mejor resistencia.
      * 
-     * This gives (approximately) 30 lost fitness points for average players,
-     * 50 for the worse stamina and 10 for the best stamina.
-     * 
-     * A small random factor is added each minute, so the exact numbers are
-     * not deterministic.
-     * 
+     * En cada minuto se suma un pequeño factor aleatorio, por lo que los números exactos no son deterministas.
      */
     public function getFatigaNominalPorMinuto(): float
     {
@@ -67,7 +63,7 @@ class JugadorPartido extends Model
     /**
      * Descuenta la fatiga al jugador según la fatiga nominal
      */
-    public function recalcularFatiga()
+    public function recalcularFatiga(): void
     {
         $deduccion_fatiga = $this->getFatigaNominalPorMinuto();
         $random = rand(0, 100);
@@ -131,6 +127,7 @@ class JugadorPartido extends Model
      * 
      * @param string $tacticaEquipo
      * @param string $tacticaEquipoRival
+     * @param float $multiplicadorBalanceTactica
      * @return float
      */
     public function getContribucionPase(string $tacticaEquipo, string $tacticaEquipoRival, float $multiplicadorBalanceTactica): float

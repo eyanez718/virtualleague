@@ -35,6 +35,9 @@ class TacticaEquipoPartido extends Model
 
     /**
      * Lee el archivo json de la táctica
+     * 
+     * @param int $idEquipo
+     * @return array
      */
     public function LeerArchivoTactica(int $idEquipo): array
     {
@@ -55,6 +58,7 @@ class TacticaEquipoPartido extends Model
      * Carga la táctica desde el archivo
      * 
      * @param int $idEquipo
+     * @param array $arrayTactica
      * @return bool
      */
     private function cargarTactica(int $idEquipo, array $arrayTactica): bool
@@ -76,6 +80,8 @@ class TacticaEquipoPartido extends Model
      * 
      * @param int $idEquipo
      * @param <Jugador> $jugadores
+     * @param array $arrayTactica
+     * @return bool
      */
     private function cargarJugadores(int $idEquipo, $jugadores, array $arrayTactica): bool
     {
@@ -149,6 +155,7 @@ class TacticaEquipoPartido extends Model
      * Retorna la suma de quite de los jugadores activos excluyendo al arquero (AR)
      * Al cálculo le aplica el multiplicador de táctica balanceada
      * 
+     * @param string $tacticaEquipoRival
      * @return float
      */
     public function calcularQuite(string $tacticaEquipoRival): float
@@ -166,6 +173,7 @@ class TacticaEquipoPartido extends Model
      * Retorna la suma de pase de los jugadores activos excluyendo al arquero (AR)
      * Al cálculo le aplica el multiplicador de táctica balanceada
      * 
+     * @param string $tacticaEquipoRival
      * @return float
      */
     public function calcularPase(string $tacticaEquipoRival): float
@@ -183,6 +191,7 @@ class TacticaEquipoPartido extends Model
      * Retorna la suma de tiro de los jugadores activos excluyendo al arquero (AR)
      * Al cálculo le aplica el multiplicador de táctica balanceada
      * 
+     * @param string $tacticaEquipoRival
      * @return float
      */
     public function calcularTiro(string $tacticaEquipoRival): float
@@ -199,7 +208,7 @@ class TacticaEquipoPartido extends Model
     /**
      * Aplica una reducción de fatiga a todos los jugadores activos
      */
-    public function recalcularFatiga()
+    public function recalcularFatiga(): void
     {
         foreach ($this->getJugadores() as $jugador) {
             if ($jugador->getActivo() == 1) {
@@ -209,12 +218,13 @@ class TacticaEquipoPartido extends Model
     }
 
     /**
-     * Retorna un array con los balances de cada posición
+     * Retorna un float el balance de la $posición buscada
      * Por cada posición
      * 1 - Si la posición está balanceada y con laterales, el modificador de la posición es 1
      * 2 - Si la posición está desbalanceada, se calcula en base al desbalance
      * 3 - Si la posición está balanceada pero sin laterales, el modificador de la posición es 0.87
      * 
+     * @param string $posicion
      * @return array
      */
     public function calcularMultiplicadoresBalanceTactica(string $posicion): float
@@ -279,6 +289,7 @@ class TacticaEquipoPartido extends Model
     /**
      * Retorna la probabilidad de tiro teniendo en cuenta los jugadores activos excluyendo al arquero (AR)
      * 
+     * @param string $tacticaEquipoRival
      * @return float
      */
     public function calcularProbabilidadTiro(string $tacticaEquipoRival): float
@@ -297,6 +308,7 @@ class TacticaEquipoPartido extends Model
         }
         return $aux_probabilidad_tiro;
     }
+    
     /**
      * GETTERS Y SETTERS
      */

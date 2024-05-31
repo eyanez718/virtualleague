@@ -36,7 +36,8 @@ class EstadisticasJugadorPartido extends Model
     private int $progreso_pase = 0;
     private int $progreso_tiro = 0;
 
-    public function __construct() {
+    public function __construct()
+    {
         
     }
 
@@ -46,7 +47,7 @@ class EstadisticasJugadorPartido extends Model
      * @param ENUMEstaditicas<EstadisticaJugadorPartido> $estadistica
      * @param int $valor - Si no se envía valor, toma por defecto 1
      */
-    public function sumarEstadistica(ENUMEstaditicas $estadistica, int $valor = 1)
+    public function sumarEstadistica(ENUMEstaditicas $estadistica, int $valor = 1): void
     {
         switch ($estadistica) {
             case ENUMEstaditicas::MINUTOS:
@@ -106,11 +107,12 @@ class EstadisticasJugadorPartido extends Model
     }
 
     /**
-     * Retorna el valor de una del jugador
+     * Retorna el valor de una $estadistica del jugador
      * 
-     * @param ENUMEstaditicas(EstadisticaJugadorPartido) $estadistica
+     * @param ENUMEstaditicas<EstadisticaJugadorPartido> $estadistica
+     * @return int
      */
-    public function obtenerEstadistica(ENUMEstaditicas $estadistica)
+    public function obtenerEstadistica(ENUMEstaditicas $estadistica): int
     {
         switch ($estadistica) {
             case ENUMEstaditicas::MINUTOS:

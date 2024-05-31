@@ -159,7 +159,6 @@ enum ComentariosPartido: string
     * Indica el valor del enum consultado
     * 
     * @param string $accion
-    *
     * @return string
     */
    public static function getComentario(string $accion): string

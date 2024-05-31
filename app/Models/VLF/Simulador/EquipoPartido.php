@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Arr;
 use Config;
 use App\Models\VLF\Equipo;
-use App\Models\VLF\Simulador\EstadisticasEquipoPartido;
 use App\Enums\VLF\EstadisticasJugadorPartido as ENUMEstaditicas;
 
 class EquipoPartido extends Model
@@ -16,7 +15,6 @@ class EquipoPartido extends Model
     use HasFactory;
 
     private Equipo $equipo;
-    private EstadisticasEquipoPartido $estadisticas;
     private string $tactica;
     private array $jugadores; // de tipo JugadorPartido
     private int $indexPateadorPenales; // Es la posición en el array de jugadores del pateador de penales
@@ -25,7 +23,8 @@ class EquipoPartido extends Model
     private bool $ok; //Indica si el equipo fue buen cargado
     private float $score; //calculo de score
 
-    public function __construct(int $idEquipo, bool $localia) {
+    public function __construct(int $idEquipo, bool $localia)
+    {
         try {
             $this->setEquipo(Equipo::with('jugadores')
                                 ->find($idEquipo));
@@ -36,7 +35,6 @@ class EquipoPartido extends Model
                     if ($this->cargarJugadores($aux_archivo_tactica)) {
                         $this->setLocalia($localia);
                         $this->setSustituciones(0);
-                        $this->setEstadisticas(new EstadisticasEquipoPartido());
                         $aux_ok = true;
                     }
                 }
@@ -50,6 +48,9 @@ class EquipoPartido extends Model
 
     /**
      * Lee el archivo json de la táctica
+     * 
+     * @param int $idEquipo
+     * @return array
      */
     public function LeerArchivoTactica(int $idEquipo): array
     {
@@ -90,6 +91,7 @@ class EquipoPartido extends Model
      * Carga los jugadores del equipo según el archivo de táctica
      * 
      * @param array $arrayTactica
+     * @return bool
      */
     private function cargarJugadores(array $arrayTactica): bool
     {
@@ -164,6 +166,7 @@ class EquipoPartido extends Model
      * Retorna la suma de quite de los jugadores activos excluyendo al arquero (AR)
      * Al cálculo le aplica el multiplicador de táctica balanceada
      * 
+     * @param string $tacticaEquipoRival
      * @return float
      */
     public function calcularQuite(string $tacticaEquipoRival): float
@@ -181,6 +184,7 @@ class EquipoPartido extends Model
      * Retorna la suma de pase de los jugadores activos excluyendo al arquero (AR)
      * Al cálculo le aplica el multiplicador de táctica balanceada
      * 
+     * @param string $tacticaEquipoRival
      * @return float
      */
     public function calcularPase(string $tacticaEquipoRival): float
@@ -198,6 +202,7 @@ class EquipoPartido extends Model
      * Retorna la suma de tiro de los jugadores activos excluyendo al arquero (AR)
      * Al cálculo le aplica el multiplicador de táctica balanceada
      * 
+     * @param string $tacticaEquipoRival
      * @return float
      */
     public function calcularTiro(string $tacticaEquipoRival): float
@@ -214,7 +219,7 @@ class EquipoPartido extends Model
     /**
      * Aplica una reducción de fatiga a todos los jugadores activos
      */
-    public function recalcularFatiga()
+    public function recalcularFatiga(): void
     {
         foreach ($this->getJugadores() as $jugador) {
             if ($jugador->getActivo() == 1) {
@@ -224,13 +229,14 @@ class EquipoPartido extends Model
     }
 
     /**
-     * Retorna un array con los balances de cada posición
+     * Retorna un float con el multiplicador del balance de la táctica
      * Por cada posición
      * 1 - Si la posición está balanceada y con laterales, el modificador de la posición es 1
      * 2 - Si la posición está desbalanceada, se calcula en base al desbalance
      * 3 - Si la posición está balanceada pero sin laterales, el modificador de la posición es 0.87
      * 
-     * @return array
+     * @param string $posicion
+     * @return float
      */
     public function calcularMultiplicadoresBalanceTactica(string $posicion): float
     {
@@ -268,6 +274,7 @@ class EquipoPartido extends Model
     /**
      * Retorna la probabilidad de tiro teniendo en cuenta los jugadores activos excluyendo al arquero (AR)
      * 
+     * @param string $tacticaEquipoRival
      * @return float
      */
     public function calcularProbabilidadTiro(string $tacticaEquipoRival): float
@@ -276,8 +283,8 @@ class EquipoPartido extends Model
         $aux_total_quite = $this->calcularQuite($tacticaEquipoRival);
         $aux_total_tiro = $this->calcularTiro($tacticaEquipoRival);
         $aux_total_pase = $this->calcularPase($tacticaEquipoRival);
-        // Note: 1.0 is added to tackling, to avoid singularity when the
-        // team tackling is 0
+
+        // Nota: Se agrega 1.0 al quite, para evitar singularidad cuando el quite del equipo es 0
         $aux_probabilidad_tiro = 1.8*($this->calcularAgresividad()/50.0 + 800.0 *
                                  pow(((1.0/3.0*$aux_total_tiro + 2.0/3.0*$aux_total_pase)
                                 / ($aux_total_quite + 1.0)), 2));
@@ -303,7 +310,7 @@ class EquipoPartido extends Model
     }
 
     /**
-     * Returna al jugador buscado según el indice en el array de jugadores
+     * Retorna al jugador buscado según el indice en el array de jugadores
      * 
      * @param int $indiceJugador
      * @return JugadorPartido
@@ -477,6 +484,7 @@ class EquipoPartido extends Model
      * @param string $posicion
      * @param string $lado
      * @param int $tipoCambio - 0 = normal, 1 = por expulsión (arquero), 2 = por lesión
+     * @return bool
      */
     public function sustituirJugador(int $idReemplazado, int $idReemplazante, string $posicion = null, string $lado = null, int $tipoCambio = 0): bool
     {
@@ -499,14 +507,11 @@ class EquipoPartido extends Model
      * Deshabilita un jugador y dependiendo de la deshabilitación suma estadística
      * 
      * @param int $idJugador
-     * @param int $tipoDeshabilitacion
+     * @param int $tipoDeshabilitacion: 0 = cambio normal, 1 = expulsión, 2 = lesion
      * @return bool
      */
     public function quitarJugador(int $idJugador, int $tipoDeshabilitacion): bool
     {
-        // $tipoDeshabilitacion = 0 = cambio normal
-        // $tipoDeshabilitacion = 1 = expulsión
-        // $tipoDeshabilitacion = 2 = lesion
         if ($tipoDeshabilitacion == 1) { // Expulsión
             //
         } elseif ($tipoDeshabilitacion == 2) { // Lesión    
@@ -518,10 +523,11 @@ class EquipoPartido extends Model
     }
 
     /**
-     * Mueve al jugador $idJugador a una nueva $posicion, retorna true si pudo hacer el cambio
+     * Mueve al jugador $idJugador a una nueva $posicion y $lado, retorna true si pudo hacer el cambio
      * 
      * @param int $idJugador
      * @param string $nuevaPosicion
+     * @param string $nuevoLado
      * @return bool
      */
     public function cambiarPosicionJugador(int $idJugador, string $nuevaPosicion, string $nuevoLado): bool
@@ -544,7 +550,10 @@ class EquipoPartido extends Model
     }
 
     /**
+     * Retorna la cantidad de jugadores que juegan en la $posicion recibida
      * 
+     * @param string $posicion
+     * @return int
      */
     public function obtenerCantidadJugadoresPosicion(string $posicion): int
     {
@@ -755,6 +764,8 @@ class EquipoPartido extends Model
 
     /**
      * Retorna la cantidad de jugadores que se lesionaron en el equipo
+     * 
+     * @return int
      */
     public function obtenerCantidadLesionados(): int
     {
@@ -766,6 +777,7 @@ class EquipoPartido extends Model
         }
         return $aux_contador;
     }
+
     /**
      * GETTERS Y SETTERS
      */
@@ -776,14 +788,6 @@ class EquipoPartido extends Model
     public function setEquipo(Equipo $equipo)
     {
         $this->equipo = $equipo;
-    }
-    public function getEstadisticas(): EstadisticasEquipoPartido
-    {
-        return $this->estadisticas;
-    }
-    public function setEstadisticas(EstadisticasEquipoPartido $estadisticas)
-    {
-        $this->estadisticas = $estadisticas;
     }
     public function getTactica(): string
     {
