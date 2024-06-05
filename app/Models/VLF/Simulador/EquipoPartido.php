@@ -10,35 +10,44 @@ use Config;
 use App\Models\VLF\Equipo;
 use App\Enums\VLF\EstadisticasJugadorPartido as ENUMEstaditicas;
 
-class EquipoPartido extends Model
+class EquipoPartido //extends Model
 {
     use HasFactory;
-
-    private Equipo $equipo;
+    
+    private int $id;
+    private string $nombre;
+    private string $abreviatura;
     private string $tactica;
-    private array $jugadores; // de tipo JugadorPartido
-    private int $indexPateadorPenales; // Es la posición en el array de jugadores del pateador de penales
+    private array $jugadoresConvocados; // de tipo JugadorPartido
+    private int $idPateadorPenales; // Es la posición en el array de jugadores del pateador de penales
     private bool $localia; // Indica si este equipo está jugando de local
     private int $sustituciones; // Contabiliza la cantidad de cambios que realizó el equipo
     private bool $ok; //Indica si el equipo fue buen cargado
-    private float $score; //calculo de score
 
-    public function __construct(int $idEquipo, bool $localia)
+    public function __construct($equipo, bool $localia)
     {
         try {
-            $this->setEquipo(Equipo::with('jugadores')
-                                ->find($idEquipo));
             $aux_ok = false;
-            $aux_archivo_tactica = $this->LeerArchivoTactica($idEquipo);
-            if (count($aux_archivo_tactica) > 0) {
-                if ($this->cargarTactica($aux_archivo_tactica)) {
-                    if ($this->cargarJugadores($aux_archivo_tactica)) {
-                        $this->setLocalia($localia);
-                        $this->setSustituciones(0);
-                        $aux_ok = true;
+            if (Arr::has($equipo, 'id')) { // Existe el campo id
+                $this->setId(Arr::get($equipo, 'id'));
+                if (Arr::has($equipo, 'nombre')) { // Existe el nombre
+                    $this->setNombre(Arr::get($equipo, 'nombre'));
+                    if (Arr::has($equipo, 'abreviatura')) { // Existe la abreviatura
+                        $this->setAbreviatura(Arr::get($equipo, 'abreviatura'));
+                        if (Arr::has($equipo, 'tactica.tactica')) { // Existe la táctica
+                            $this->setTactica(Arr::get($equipo, 'tactica.tactica'));
+                            if (Arr::has($equipo, 'tactica.titulares') && Arr::has($equipo, 'tactica.suplentes') && Arr::has($equipo, 'jugadores')) { // Existen jugadores, tactica.titulares y tactica.suplentes
+                                if ($this->cargarJugadores($equipo)) {
+                                    $this->setLocalia($localia);
+                                    $this->setSustituciones(0);
+                                    $aux_ok = true;
+                                }
+                            }
+                        }
                     }
                 }
-            }
+            }            
+            // Guardo el resultado de la carga
             $this->setOK($aux_ok);
         } catch (\Throwable $th) {
             dump($th);
@@ -47,71 +56,31 @@ class EquipoPartido extends Model
     }
 
     /**
-     * Lee el archivo json de la táctica
-     * 
-     * @param int $idEquipo
-     * @return array
-     */
-    public function LeerArchivoTactica(int $idEquipo): array
-    {
-        try {
-            $aux_path_tactica = storage_path('tacticas/' . $idEquipo . '.json');
-            if (File::exists($aux_path_tactica)) {
-                $tactica = File::json($aux_path_tactica);
-                return $tactica;
-            } else {
-                return [];
-            }
-        } catch (\Throwable $th) {
-            return [];
-        }
-    }
-
-    /**
-     * Carga la táctica desde el archivo
-     * 
-     * @param array $arrayTactica
-     * @return bool
-     */
-    private function cargarTactica(array $arrayTactica): bool
-    {
-        try {
-            if (Arr::has($arrayTactica, 'tactica')) {
-                $this->setTactica(Arr::get($arrayTactica, 'tactica'));
-            } else {
-                return false;
-            }
-            return true;
-        } catch (\Throwable $th) {
-            return false;
-        }
-    }
-
-    /**
      * Carga los jugadores del equipo según el archivo de táctica
      * 
-     * @param array $arrayTactica
+     * @param array $equipo
      * @return bool
      */
-    private function cargarJugadores(array $arrayTactica): bool
+    private function cargarJugadores(array $equipo): bool
     {
         try {
             // Busco el id del pateador de penales
             $aux_id_pateador_penales = 0;
-            if (Arr::has($arrayTactica, 'pateador_penales')) {
-                $aux_id_pateador_penales = Arr::get($arrayTactica, 'pateador_penales');
+            if (Arr::has($equipo, 'tactica.pateador_penales')) {
+                $aux_id_pateador_penales = Arr::get($equipo, 'tactica.pateador_penales');
             }
-            $this->setJugadores([]);
-            if (Arr::has($arrayTactica, 'titulares')) {
-                $auxTitulares = Arr::get($arrayTactica, 'titulares');
+            $this->setJugadoresConvocados([]);
+            if (Arr::has($equipo, 'tactica.titulares') && Arr::has($equipo, 'jugadores')) {
+                $auxTitulares = Arr::get($equipo, 'tactica.titulares');
                 if (count($auxTitulares) == Config::get('vlf.partido.numero_jugadores')) {
                     for ($i = 1; $i <= Config::get('vlf.partido.numero_jugadores'); $i++) {
-                        foreach ($this->getEquipo()->jugadores as $jugador) {
-                            if ($jugador->id == Arr::get($auxTitulares[$i], 'id_jugador')) {
+                        foreach (Arr::get($equipo, 'jugadores') as $jugador) {
+                            if ($jugador['id'] == Arr::get($auxTitulares[$i], 'id_jugador')) {
                                 $aux_jugador_partido = new JugadorPartido($jugador, true, Arr::get($auxTitulares[$i], 'posicion'), Arr::get($auxTitulares[$i], 'lado'), false);
-                                $this->jugadores = Arr::add($this->jugadores, $i, $aux_jugador_partido);
-                                if ($aux_id_pateador_penales == $jugador->id) { // Si el idPateadorPenales de la táctica está entre los titulares
-                                    $this->setIdPateadorPenales($jugador->id);
+                                //$this->jugadores = Arr::add($this->jugadores, $i, $aux_jugador_partido);
+                                $this->setJugadoresConvocados(Arr::add($this->getJugadoresConvocados(), $i, $aux_jugador_partido));
+                                if ($aux_id_pateador_penales == $jugador['id']) { // Si el idPateadorPenales de la táctica está entre los titulares
+                                    $this->setIdPateadorPenales($jugador['id']);
                                 }
                             }
                         }
@@ -119,13 +88,14 @@ class EquipoPartido extends Model
                     if ($aux_id_pateador_penales == 0) { // No se inicializó el id del pateador de penales, busco al mejor de los que quedan en cancha
                         $this->buscarPateadorPenales();
                     }
-                    $auxSuplentes = Arr::get($arrayTactica, 'suplentes');
+                    $auxSuplentes = Arr::get($equipo, 'tactica.suplentes');
                     if (count($auxSuplentes) == Config::get('vlf.partido.numero_suplentes')) {
                         for ($i = 1 + Config::get('vlf.partido.numero_jugadores'); $i <= Config::get('vlf.partido.numero_jugadores') + Config::get('vlf.partido.numero_suplentes'); $i++) {
-                            foreach ($this->getEquipo()->jugadores as $jugador) {
-                                if ($jugador->id == Arr::get($auxSuplentes[$i], 'id_jugador')) {
+                            foreach (Arr::get($equipo, 'jugadores') as $jugador) {
+                                if ($jugador['id'] == Arr::get($auxSuplentes[$i], 'id_jugador')) {
                                     $aux_jugador_partido = new JugadorPartido($jugador, false, Arr::get($auxSuplentes[$i], 'posicion'), Arr::get($auxSuplentes[$i], 'lado'), true);
-                                    $this->jugadores = Arr::add($this->jugadores, $i, $aux_jugador_partido);
+                                    //$this->jugadores = Arr::add($this->jugadores, $i, $aux_jugador_partido);
+                                    $this->setJugadoresConvocados(Arr::add($this->getJugadoresConvocados(), $i, $aux_jugador_partido));
                                 }
                             }
                         }
@@ -154,9 +124,9 @@ class EquipoPartido extends Model
     public function calcularAgresividad(): int
     {
         $agresividad = 0;
-        foreach ($this->getJugadores() as $jugador) {
+        foreach ($this->getJugadoresConvocados() as $jugador) {
             if ($jugador->getActivo() == 1) {
-                $agresividad = $agresividad + $jugador->getJugador()->habilidad->agresividad;
+                $agresividad = $agresividad + $jugador->getJugador()['habilidad']['agresividad'];
             }
         }
         return $agresividad;
@@ -172,7 +142,7 @@ class EquipoPartido extends Model
     public function calcularQuite(string $tacticaEquipoRival): float
     {
         $quite = 0.0;
-        foreach ($this->getJugadores() as $jugador) {
+        foreach ($this->getJugadoresConvocados() as $jugador) {
             if ($jugador->getActivo() == 1 && $jugador->getPosicion() != 'AR') {
                 $quite = $quite + ($jugador->getContribucionQuite($this->getTactica(), $tacticaEquipoRival) * $this->calcularMultiplicadoresBalanceTactica($jugador->getPosicion()));
             }
@@ -190,7 +160,7 @@ class EquipoPartido extends Model
     public function calcularPase(string $tacticaEquipoRival): float
     {
         $pase = 0.0;
-        foreach ($this->getJugadores() as $jugador) {
+        foreach ($this->getJugadoresConvocados() as $jugador) {
             if ($jugador->getActivo() == 1 && $jugador->getPosicion() != 'AR') {
                 $pase = $pase + ($jugador->getContribucionPase($this->getTactica(), $tacticaEquipoRival, $this->calcularMultiplicadoresBalanceTactica($jugador->getPosicion())));
             }
@@ -208,7 +178,7 @@ class EquipoPartido extends Model
     public function calcularTiro(string $tacticaEquipoRival): float
     {
         $tiro = 0.0;
-        foreach ($this->getJugadores() as $jugador) {
+        foreach ($this->getJugadoresConvocados() as $jugador) {
             if ($jugador->getActivo() == 1 && $jugador->getPosicion() != 'AR') {
                 $tiro = $tiro + ($jugador->getContribucionTiro($this->getTactica(), $tacticaEquipoRival) * $this->calcularMultiplicadoresBalanceTactica($jugador->getPosicion()));
             }
@@ -221,7 +191,7 @@ class EquipoPartido extends Model
      */
     public function recalcularFatiga(): void
     {
-        foreach ($this->getJugadores() as $jugador) {
+        foreach ($this->getJugadoresConvocados() as $jugador) {
             if ($jugador->getActivo() == 1) {
                 $jugador->recalcularFatiga();
             }
@@ -244,7 +214,7 @@ class EquipoPartido extends Model
         $aux_contador_centro = 0;
         $aux_contador_derecha = 0;
         $aux_multiplicador = 1;
-        foreach ($this->getJugadores() as $jugador) {
+        foreach ($this->getJugadoresConvocados() as $jugador) {
             if ($jugador->getActivo() == 1 && $jugador->getPosicion() == $posicion) {
                 switch ($jugador->getLado()) {
                     case 'L':
@@ -302,9 +272,9 @@ class EquipoPartido extends Model
      */
     public function obtenerJugador(int $idJugador): JugadorPartido
     {
-        for ($i = 1; $i <= count($this->getJugadores()); $i++) { 
-            if (Arr::get($this->getJugadores(), $i)->getJugador()->id == $idJugador) {
-                return Arr::get($this->getJugadores(), $i);
+        for ($i = 1; $i <= count($this->getJugadoresConvocados()); $i++) { 
+            if (Arr::get($this->getJugadoresConvocados(), $i)->getJugador()['id'] == $idJugador) {
+                return Arr::get($this->getJugadoresConvocados(), $i);
             }
         }
     }
@@ -317,7 +287,7 @@ class EquipoPartido extends Model
      */
     public function obtenerJugadorIndice(int $indiceJugador): JugadorPartido
     {
-        return Arr::get($this->getJugadores(), $indiceJugador);
+        return Arr::get($this->getJugadoresConvocados(), $indiceJugador);
     }
 
     /**
@@ -327,7 +297,7 @@ class EquipoPartido extends Model
      */
     public function obtenerArquero(): ?JugadorPartido
     {
-        foreach ($this->getJugadores() as $jugador) {
+        foreach ($this->getJugadoresConvocados() as $jugador) {
             if ($jugador->getActivo() == true && $jugador->getPosicion() == 'AR') {
                 return $jugador;
             }
@@ -350,13 +320,12 @@ class EquipoPartido extends Model
             if ($this->obtenerJugador($idJugadorReemplazar)->getPosicion() == 'AR' || $buscoArqueroAlternativo == true) {
                 // Si el equipo no tiene cambios y $idJugadorReemplazar, busco un reemplazante en el resto de los jugadores
                 // si $idJugadorReemplazar no es arquero, no busco reemplazante
-                foreach ($this->getJugadores() as $jugador) {
+                foreach ($this->getJugadoresConvocados() as $jugador) {
                     if ($jugador->getActivo() == true && $jugador->getPosicion() != 'AR') {
-                        if (($jugador->getJugador()->habilidad->habilidad_arquero + ($jugador->getJugador()->habilidad->habilidad_quite / 2)) > $aux_sumatoria_habilidad) {
-                            $aux_sumatoria_habilidad = $jugador->getJugador()->habilidad->habilidad_arquero + ($jugador->getJugador()->habilidad->habilidad_quite / 2);
-                            $aux_id_reemplazante = $jugador->getJugador()->id;
+                        if (($jugador->getJugador()['habilidad']['habilidad_arquero'] + ($jugador->getJugador()['habilidad']['habilidad_quite'] / 2)) > $aux_sumatoria_habilidad) {
+                            $aux_sumatoria_habilidad = $jugador->getJugador()['habilidad']['habilidad_arquero'] + ($jugador->getJugador()['habilidad']['habilidad_quite'] / 2);
+                            $aux_id_reemplazante = $jugador->getJugador()['id'];
                         }
-                        
                     }
                 }
             }
@@ -364,38 +333,37 @@ class EquipoPartido extends Model
             // Control si busco arquero suplente o jugador de campo
             if ($this->obtenerJugador($idJugadorReemplazar)->getPosicion() == 'AR') { // Tengo que reemplazar un arquero
                 // Busco arquero suplente
-                foreach ($this->getJugadores() as $jugador) {
+                foreach ($this->getJugadoresConvocados() as $jugador) {
                     if ($jugador->getActivo() == false && $jugador->getDisponible() == true && $jugador->getPosicion() == 'AR') {
-                        $aux_id_reemplazante = $jugador->getJugador()->id;
+                        $aux_id_reemplazante = $jugador->getJugador()['id'];
                     }
                 }
                 // Si no encontré arquero suplente, busco un jugador suplente "de campo" para que ataje
                 if ($aux_id_reemplazante == 0) { 
-                    foreach ($this->getJugadores() as $jugador) {
+                    foreach ($this->getJugadoresConvocados() as $jugador) {
                         if ($jugador->getActivo() == false && $jugador->getDisponible() == true && $jugador->getPosicion() != 'AR') {
-                            if (($jugador->getJugador()->habilidad->habilidad_arquero + ($jugador->getJugador()->habilidad->habilidad_quite / 2)) > $aux_sumatoria_habilidad) {
-                                $aux_sumatoria_habilidad = $jugador->getJugador()->habilidad->habilidad_arquero + ($jugador->getJugador()->habilidad->habilidad_quite / 2);
-                                $aux_id_reemplazante = $jugador->getJugador()->id;
+                            if (($jugador->getJugador()['habilidad']['habilidad_arquero'] + ($jugador->getJugador()['habilidad']['habilidad_quite'] / 2)) > $aux_sumatoria_habilidad) {
+                                $aux_sumatoria_habilidad = $jugador->getJugador()['habilidad']['habilidad_arquero'] + ($jugador->getJugador()['habilidad']['habilidad_quite'] / 2);
+                                $aux_id_reemplazante = $jugador->getJugador()['id'];
                             }
-                            
                         }
                     }
                 }
             } else { // Tengo que reemplazar un jugador de campo
                 // Busco un jugador que juege en la misma posición y lado
-                foreach ($this->getJugadores() as $jugador) {
+                foreach ($this->getJugadoresConvocados() as $jugador) {
                     if ($jugador->getActivo() == false && $jugador->getDisponible() == true && $jugador->getPosicion() == $this->obtenerJugador($idJugadorReemplazar)->getPosicion() && $jugador->getLado() == $this->obtenerJugador($idJugadorReemplazar)->getLado()) {
                         // Encontré jugador que coincida con la posición y el lado del jugador a reemplazar
-                        $aux_id_reemplazante = $jugador->getJugador()->id;
+                        $aux_id_reemplazante = $jugador->getJugador()['id'];
                         break;
                     }
                 }
                 if ($aux_id_reemplazante == 0) { // Si aún no encontré reemplazante
                     // Busco un jugador que juege en la misma posición
-                    foreach ($this->getJugadores() as $jugador) {
+                    foreach ($this->getJugadoresConvocados() as $jugador) {
                         if ($jugador->getActivo() == false && $jugador->getDisponible() == true && $jugador->getPosicion() == $this->obtenerJugador($idJugadorReemplazar)->getPosicion()) {
                             // Encontré jugador que coincida con la posición y el lado del jugador a reemplazar
-                            $aux_id_reemplazante = $jugador->getJugador()->id;
+                            $aux_id_reemplazante = $jugador->getJugador()['id'];
                             break;
                         }
                     }
@@ -403,37 +371,37 @@ class EquipoPartido extends Model
                 // Busco un jugador que se adecue a la posición
                 if ($aux_id_reemplazante == 0) { // Si aún no encontré reemplazante
                     // Busco un jugador que se adecúe a la posción
-                    foreach ($this->getJugadores() as $jugador) {
+                    foreach ($this->getJugadoresConvocados() as $jugador) {
                         if ($jugador->getActivo() == false && $jugador->getDisponible() == true) {
                             switch ($this->obtenerJugador($idJugadorReemplazar)->getPosicion()) {
                                 case 'DF':
-                                    if (($jugador->getJugador()->habilidad->habilidad_quite + ($jugador->getJugador()->habilidad->habilidad_pase / 2)) > $aux_sumatoria_habilidad) {
-                                        $aux_sumatoria_habilidad = $jugador->getJugador()->habilidad->habilidad_quite + ($jugador->getJugador()->habilidad->habilidad_pase / 2);
-                                        $aux_id_reemplazante = $jugador->getJugador()->id;
+                                    if (($jugador->getJugador()['habilidad']['habilidad_quite'] + ($jugador->getJugador()['habilidad']['habilidad_pase'] / 2)) > $aux_sumatoria_habilidad) {
+                                        $aux_sumatoria_habilidad = $jugador->getJugador()['habilidad']['habilidad_quite'] + ($jugador->getJugador()['habilidad']['habilidad_pase'] / 2);
+                                        $aux_id_reemplazante = $jugador->getJugador()['id'];
                                     }
                                     break;
                                 case 'MD':
-                                    if (($jugador->getJugador()->habilidad->habilidad_pase + ($jugador->getJugador()->habilidad->habilidad_quite / 2)) > $aux_sumatoria_habilidad) {
-                                        $aux_sumatoria_habilidad = $jugador->getJugador()->habilidad->habilidad_pase + ($jugador->getJugador()->habilidad->habilidad_quite / 2);
-                                        $aux_id_reemplazante = $jugador->getJugador()->id;
+                                    if (($jugador->getJugador()['habilidad']['habilidad_pase'] + ($jugador->getJugador()['habilidad']['habilidad_quite'] / 2)) > $aux_sumatoria_habilidad) {
+                                        $aux_sumatoria_habilidad = $jugador->getJugador()['habilidad']['habilidad_pase'] + ($jugador->getJugador()['habilidad']['habilidad_quite'] / 2);
+                                        $aux_id_reemplazante = $jugador->getJugador()['id'];
                                     }
                                     break;
                                 case 'MC':
-                                    if (($jugador->getJugador()->habilidad->habilidad_pase + (($jugador->getJugador()->habilidad->habilidad_quite + $jugador->getJugador()->habilidad->habilidad_tiro) / 2)) > $aux_sumatoria_habilidad) {
-                                        $aux_sumatoria_habilidad = $jugador->getJugador()->habilidad->habilidad_pase + (($jugador->getJugador()->habilidad->habilidad_quite + $jugador->getJugador()->habilidad->habilidad_tiro) / 2);
-                                        $aux_id_reemplazante = $jugador->getJugador()->id;
+                                    if (($jugador->getJugador()['habilidad']['habilidad_pase'] + (($jugador->getJugador()['habilidad']['habilidad_quite'] + $jugador->getJugador()['habilidad']['habilidad_tiro']) / 2)) > $aux_sumatoria_habilidad) {
+                                        $aux_sumatoria_habilidad = $jugador->getJugador()['habilidad']['habilidad_pase'] + (($jugador->getJugador()['habilidad']['habilidad_quite'] + $jugador->getJugador()['habilidad']['habilidad_tiro']) / 2);
+                                        $aux_id_reemplazante = $jugador->getJugador()['id'];
                                     }
                                     break;
                                 case 'MO':
-                                    if (($jugador->getJugador()->habilidad->habilidad_pase + ($jugador->getJugador()->habilidad->habilidad_tiro / 2)) > $aux_sumatoria_habilidad) {
-                                        $aux_sumatoria_habilidad = $jugador->getJugador()->habilidad->habilidad_pase + ($jugador->getJugador()->habilidad->habilidad_tiro / 2);
-                                        $aux_id_reemplazante = $jugador->getJugador()->id;
+                                    if (($jugador->getJugador()['habilidad']['habilidad_pase'] + ($jugador->getJugador()['habilidad']['habilidad_tiro'] / 2)) > $aux_sumatoria_habilidad) {
+                                        $aux_sumatoria_habilidad = $jugador->getJugador()['habilidad']['habilidad_pase'] + ($jugador->getJugador()['habilidad']['habilidad_tiro'] / 2);
+                                        $aux_id_reemplazante = $jugador->getJugador()['id'];
                                     }
                                     break;
                                 case 'DL':
-                                    if (($jugador->getJugador()->habilidad->habilidad_tiro + ($jugador->getJugador()->habilidad->habilidad_pase / 2)) > $aux_sumatoria_habilidad) {
-                                        $aux_sumatoria_habilidad = $jugador->getJugador()->habilidad->habilidad_tiro + ($jugador->getJugador()->habilidad->habilidad_pase / 2);
-                                        $aux_id_reemplazante = $jugador->getJugador()->id;
+                                    if (($jugador->getJugador()['habilidad']['habilidad_tiro'] + ($jugador->getJugador()['habilidad']['habilidad_pase'] / 2)) > $aux_sumatoria_habilidad) {
+                                        $aux_sumatoria_habilidad = $jugador->getJugador()['habilidad']['habilidad_tiro'] + ($jugador->getJugador()['habilidad']['habilidad_pase'] / 2);
+                                        $aux_id_reemplazante = $jugador->getJugador()['id'];
                                     }
                                     break;
                                 default:
@@ -465,11 +433,11 @@ class EquipoPartido extends Model
     {
         $aux_id_pateador = 0;
         $aux_habilidad_tiro_pateador = 0;
-        foreach ($this->getJugadores() as $jugador) {  // Recorro los jugadores
+        foreach ($this->getJugadoresConvocados() as $jugador) {  // Recorro los jugadores
             if ($jugador->getActivo()) { // Controlo si está activo
-                if ($jugador->getJugador()->habilidad->habilidad_tiro * $jugador->getFatiga() > $aux_habilidad_tiro_pateador) { //Controlo la habilidad
-                    $aux_id_pateador = $jugador->getJugador()->id;
-                    $aux_habilidad_tiro_pateador = $jugador->getJugador()->habilidad->habilidad_tiro * $jugador->getFatiga();
+                if ($jugador->getJugador()['habilidad']['habilidad_tiro'] * $jugador->getFatiga() > $aux_habilidad_tiro_pateador) { //Controlo la habilidad
+                    $aux_id_pateador = $jugador->getJugador()['id'];
+                    $aux_habilidad_tiro_pateador = $jugador->getJugador()['habilidad']['habilidad_tiro'] * $jugador->getFatiga();
                 }
             }
         }
@@ -558,7 +526,7 @@ class EquipoPartido extends Model
     public function obtenerCantidadJugadoresPosicion(string $posicion): int
     {
         $cantidad_jugadores = 0;
-        foreach ($this->getJugadores() as $jugador) {
+        foreach ($this->getJugadoresConvocados() as $jugador) {
             if ($jugador->getPosicion() == $posicion && $jugador->getActivo()) {
                 $cantidad_jugadores += 1;
             }
@@ -607,87 +575,87 @@ class EquipoPartido extends Model
         $aux_jugadores = [];
         $aux_contador = 0;
         // Busco arquero
-        foreach ($this->getJugadores() as $jugador) {
+        foreach ($this->getJugadoresConvocados() as $jugador) {
             if ($jugador->getPosicion() == 'AR' && $jugador->getActivo()) {
                 $aux_contador += 1;
-                $aux_jugadores = Arr::add($aux_jugadores, $aux_contador, $jugador->getPosicion() . ' ' . $jugador->getJugador()->getNombreApellido());
+                $aux_jugadores = Arr::add($aux_jugadores, $aux_contador, $jugador->getPosicion() . ' ' . $jugador->getNombreApellido());
             }
         }
         // Busco laterales izquierdos
-        foreach ($this->getJugadores() as $jugador) {
+        foreach ($this->getJugadoresConvocados() as $jugador) {
             if ($jugador->getPosicion() == 'DF' && $jugador->getLado() == 'I' && $jugador->getActivo()) {
                 $aux_contador += 1;
                 $aux_jugadores = Arr::add($aux_jugadores, $aux_contador, $jugador->getPosicion() . $jugador->getLado() . ' ' . $jugador->getJugador()->getNombreApellido());
             }
         }
         // Busco defensores centrales
-        foreach ($this->getJugadores() as $jugador) {
+        foreach ($this->getJugadoresConvocados() as $jugador) {
             if ($jugador->getPosicion() == 'DF' && $jugador->getLado() == 'C' && $jugador->getActivo()) {
                 $aux_contador += 1;
-                $aux_jugadores = Arr::add($aux_jugadores, $aux_contador, $jugador->getPosicion() . $jugador->getLado() . ' ' . $jugador->getJugador()->getNombreApellido());
+                $aux_jugadores = Arr::add($aux_jugadores, $aux_contador, $jugador->getPosicion() . $jugador->getLado() . ' ' . $jugador->getNombreApellido());
             }
         }
         // Busco laterales derechos
-        foreach ($this->getJugadores() as $jugador) {
+        foreach ($this->getJugadoresConvocados() as $jugador) {
             if ($jugador->getPosicion() == 'DF' && $jugador->getLado() == 'D' && $jugador->getActivo()) {
                 $aux_contador += 1;
-                $aux_jugadores = Arr::add($aux_jugadores, $aux_contador, $jugador->getPosicion() . $jugador->getLado() . ' ' . $jugador->getJugador()->getNombreApellido());
+                $aux_jugadores = Arr::add($aux_jugadores, $aux_contador, $jugador->getPosicion() . $jugador->getLado() . ' ' . $jugador->getNombreApellido());
             }
         }
         // Busco medicampistas defensivos
-        foreach ($this->getJugadores() as $jugador) {
+        foreach ($this->getJugadoresConvocados() as $jugador) {
             if ($jugador->getPosicion() == 'MD' && $jugador->getActivo()) {
                 $aux_contador += 1;
-                $aux_jugadores = Arr::add($aux_jugadores, $aux_contador, $jugador->getPosicion() . 'C ' . $jugador->getJugador()->getNombreApellido());
+                $aux_jugadores = Arr::add($aux_jugadores, $aux_contador, $jugador->getPosicion() . 'C ' . $jugador->getNombreApellido());
             }
         }
         // Busco medicampistas izquierdos
-        foreach ($this->getJugadores() as $jugador) {
+        foreach ($this->getJugadoresConvocados() as $jugador) {
             if ($jugador->getPosicion() == 'MC' && $jugador->getLado() == 'I' && $jugador->getActivo()) {
                 $aux_contador += 1;
-                $aux_jugadores = Arr::add($aux_jugadores, $aux_contador, $jugador->getPosicion() . $jugador->getLado() . ' ' . $jugador->getJugador()->getNombreApellido());
+                $aux_jugadores = Arr::add($aux_jugadores, $aux_contador, $jugador->getPosicion() . $jugador->getLado() . ' ' . $jugador->getNombreApellido());
             }
         }
         // Busco medicampistas centrales
-        foreach ($this->getJugadores() as $jugador) {
+        foreach ($this->getJugadoresConvocados() as $jugador) {
             if ($jugador->getPosicion() == 'MC' && $jugador->getLado() == 'C' && $jugador->getActivo()) {
                 $aux_contador += 1;
-                $aux_jugadores = Arr::add($aux_jugadores, $aux_contador, $jugador->getPosicion() . $jugador->getLado() . ' ' . $jugador->getJugador()->getNombreApellido());
+                $aux_jugadores = Arr::add($aux_jugadores, $aux_contador, $jugador->getPosicion() . $jugador->getLado() . ' ' . $jugador->getNombreApellido());
             }
         }
         // Busco medicampistas derechos
-        foreach ($this->getJugadores() as $jugador) {
+        foreach ($this->getJugadoresConvocados() as $jugador) {
             if ($jugador->getPosicion() == 'MC' && $jugador->getLado() == 'D' && $jugador->getActivo()) {
                 $aux_contador += 1;
-                $aux_jugadores = Arr::add($aux_jugadores, $aux_contador, $jugador->getPosicion() . $jugador->getLado() . ' ' . $jugador->getJugador()->getNombreApellido());
+                $aux_jugadores = Arr::add($aux_jugadores, $aux_contador, $jugador->getPosicion() . $jugador->getLado() . ' ' . $jugador->getNombreApellido());
             }
         }
         // Busco medicampistas ofensivos
-        foreach ($this->getJugadores() as $jugador) {
+        foreach ($this->getJugadoresConvocados() as $jugador) {
             if ($jugador->getPosicion() == 'MO' && $jugador->getActivo()) {
                 $aux_contador += 1;
-                $aux_jugadores = Arr::add($aux_jugadores, $aux_contador, $jugador->getPosicion() . 'C ' . $jugador->getJugador()->getNombreApellido());
+                $aux_jugadores = Arr::add($aux_jugadores, $aux_contador, $jugador->getPosicion() . 'C ' . $jugador->getNombreApellido());
             }
         }
         // Busco delanteros izquierdos
-        foreach ($this->getJugadores() as $jugador) {
+        foreach ($this->getJugadoresConvocados() as $jugador) {
             if ($jugador->getPosicion() == 'DL' && $jugador->getLado() == 'I' && $jugador->getActivo()) {
                 $aux_contador += 1;
-                $aux_jugadores = Arr::add($aux_jugadores, $aux_contador, $jugador->getPosicion() . $jugador->getLado() . ' ' . $jugador->getJugador()->getNombreApellido());
+                $aux_jugadores = Arr::add($aux_jugadores, $aux_contador, $jugador->getPosicion() . $jugador->getLado() . ' ' . $jugador->getNombreApellido());
             }
         }
         // Busco delanteros centrales
-        foreach ($this->getJugadores() as $jugador) {
+        foreach ($this->getJugadoresConvocados() as $jugador) {
             if ($jugador->getPosicion() == 'DL' && $jugador->getLado() == 'C' && $jugador->getActivo()) {
                 $aux_contador += 1;
-                $aux_jugadores = Arr::add($aux_jugadores, $aux_contador, $jugador->getPosicion() . $jugador->getLado() . ' ' . $jugador->getJugador()->getNombreApellido());
+                $aux_jugadores = Arr::add($aux_jugadores, $aux_contador, $jugador->getPosicion() . $jugador->getLado() . ' ' . $jugador->getNombreApellido());
             }
         }
         // Busco delanteros derechos
-        foreach ($this->getJugadores() as $jugador) {
+        foreach ($this->getJugadoresConvocados() as $jugador) {
             if ($jugador->getPosicion() == 'DL' && $jugador->getLado() == 'D' && $jugador->getActivo()) {
                 $aux_contador += 1;
-                $aux_jugadores = Arr::add($aux_jugadores, $aux_contador, $jugador->getPosicion() . $jugador->getLado() . ' ' . $jugador->getJugador()->getNombreApellido());
+                $aux_jugadores = Arr::add($aux_jugadores, $aux_contador, $jugador->getPosicion() . $jugador->getLado() . ' ' . $jugador->getNombreApellido());
             }
         }
         return $aux_jugadores;
@@ -702,7 +670,7 @@ class EquipoPartido extends Model
     public function obtenerEstadistica(ENUMEstaditicas $estadistica): int
     {
         $aux_suma_estaditica = 0;
-        foreach ($this->getJugadores() as $jugador) {
+        foreach ($this->getJugadoresConvocados() as $jugador) {
             switch ($estadistica) {
                 case ENUMEstaditicas::MINUTOS:
                     $aux_suma_estaditica += $jugador->getEstadisticas()->obtenerEstadistica(ENUMEstaditicas::MINUTOS);
@@ -770,7 +738,7 @@ class EquipoPartido extends Model
     public function obtenerCantidadLesionados(): int
     {
         $aux_contador = 0;
-        foreach ($this->getJugadores() as $jugador) {
+        foreach ($this->getJugadoresConvocados() as $jugador) {
             if ($jugador->getLesionado()) {
                 $aux_contador += 1;
             }
@@ -779,15 +747,47 @@ class EquipoPartido extends Model
     }
 
     /**
+     * Serializa el EquipoPartido
+     */
+    public function toArray(): array
+    {
+        return array(
+            'equipo' => $this->getEquipo(),
+            'tactica' => $this->getTactica(),
+            'jugadoresConvocados' => $this->getJugadoresConvocados(),
+            'idPateadorPenales' => $this->getIdPateadorPenales(),
+            'localia' => $this->getLocalia(),
+            'sustituciones' => $this->getSustituciones(),
+            'ok' => $this->getOk(),
+        );
+    }
+
+    /**
      * GETTERS Y SETTERS
      */
-    public function getEquipo(): Equipo
+    public function getId(): int
     {
-        return $this->equipo;
+        return $this->id;
     }
-    public function setEquipo(Equipo $equipo)
+    public function setId(int $id)
     {
-        $this->equipo = $equipo;
+        $this->id = $id;
+    }
+    public function getNombre(): string
+    {
+        return $this->nombre;
+    }
+    public function setNombre(string $nombre)
+    {
+        $this->nombre = $nombre;
+    }
+    public function getAbreviatura(): string
+    {        
+        return $this->abreviatura;
+    }
+    public function setAbreviatura(string $abreviatura)
+    {
+        $this->abreviatura = $abreviatura;
     }
     public function getTactica(): string
     {
@@ -797,13 +797,13 @@ class EquipoPartido extends Model
     {
         $this->tactica = $tactica;
     }
-    public function getJugadores(): array
+    public function getJugadoresConvocados(): array
     {
-        return $this->jugadores;
+        return $this->jugadoresConvocados;
     }
-    public function setJugadores(array $jugadores)
+    public function setJugadoresConvocados(array $jugadoresConvocados)
     {
-        $this->jugadores = $jugadores;
+        $this->jugadoresConvocados = $jugadoresConvocados;
     }
     public function getIdPateadorPenales(): int
     {
@@ -828,14 +828,6 @@ class EquipoPartido extends Model
     public function setLocalia(bool $localia)
     {
         $this->localia = $localia;
-    }
-    public function getScore(): float
-    {
-        return $this->score;
-    }
-    public function setScore(bool $score)
-    {
-        $this->score = $score;
     }
     public function getSustituciones(): int
     {

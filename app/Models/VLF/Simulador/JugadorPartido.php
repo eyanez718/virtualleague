@@ -7,12 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 use Config;
 use App\Models\VLF\Jugador;
 use App\Models\VLF\Simulador\EstadisticasJugadorPartido;
+use Illuminate\Support\Str;
 
 class JugadorPartido extends Model
 {
     use HasFactory;
 
-    private Jugador $jugador;
+    private array $jugador;
     private EstadisticasJugadorPartido $estadisticas;
 
     private bool $activo; // true = jugando, false = en el banco
@@ -28,7 +29,7 @@ class JugadorPartido extends Model
         $this->setDisponible($disponible);
         $this->setLesionado(0);
         // Inicializo fatiga
-        $this->setFatiga($this->getJugador()->habilidad->fisico / 100.0);
+        $this->setFatiga($this->getJugador()['habilidad']['fisico'] / 100.0);
         $this->setPosicion($posicion);
         $this->setLado($lado);
         // Asigno estadísticas del partido
@@ -56,7 +57,7 @@ class JugadorPartido extends Model
      */
     public function getFatigaNominalPorMinuto(): float
     {
-        $ratio_resistencia_normalizado = ($this->getJugador()->habilidad->resistencia - 50) / 50.0;
+        $ratio_resistencia_normalizado = ($this->getJugador()['habilidad']['resistencia'] - 50) / 50.0;
         return 0.0031 - $ratio_resistencia_normalizado * 0.0022;
     }
 
@@ -81,7 +82,7 @@ class JugadorPartido extends Model
      */
     public function getLadoComodo(): bool
     {
-        if (str_contains($this->getJugador()->habilidad->lado_preferido, $this->getLado())) {
+        if (str_contains($this->getJugador()['habilidad']['lado_preferido'], $this->getLado())) {
             return true;
         } else {
             return false;
@@ -116,7 +117,7 @@ class JugadorPartido extends Model
         } else {
             $aux_multi_lado = 0.75;
         }
-        $aux_contribucion = ($aux_multi_posicion + $aux_bonus_posicion) * $aux_multi_lado * $this->getJugador()->habilidad->habilidad_quite * $this->getFatiga();
+        $aux_contribucion = ($aux_multi_posicion + $aux_bonus_posicion) * $aux_multi_lado * $this->getJugador()['habilidad']['habilidad_quite'] * $this->getFatiga();
         return $aux_contribucion;
     }
 
@@ -149,7 +150,7 @@ class JugadorPartido extends Model
         } else {
             $aux_multi_lado = 0.75;
         }
-        $aux_contribucion = ($aux_multi_posicion + $aux_bonus_posicion) * $aux_multi_lado * $this->getJugador()->habilidad->habilidad_pase * $this->getFatiga() * $multiplicadorBalanceTactica;
+        $aux_contribucion = ($aux_multi_posicion + $aux_bonus_posicion) * $aux_multi_lado * $this->getJugador()['habilidad']['habilidad_pase'] * $this->getFatiga() * $multiplicadorBalanceTactica;
         return $aux_contribucion;
     }
 
@@ -181,18 +182,18 @@ class JugadorPartido extends Model
         } else {
             $aux_multi_lado = 0.75;
         }
-        $aux_contribucion = ($aux_multi_posicion + $aux_bonus_posicion) * $aux_multi_lado * $this->getJugador()->habilidad->habilidad_tiro * $this->getFatiga();
+        $aux_contribucion = ($aux_multi_posicion + $aux_bonus_posicion) * $aux_multi_lado * $this->getJugador()['habilidad']['habilidad_tiro'] * $this->getFatiga();
         return $aux_contribucion;
     }
 
     /**
      * GETTERS Y SETTERS
      */
-    public function getJugador(): Jugador
+    public function getJugador(): array
     {
         return $this->jugador;
     }
-    public function setJugador(Jugador $jugador)
+    public function setJugador(array $jugador)
     {
         $this->jugador = $jugador;
     }
@@ -251,5 +252,17 @@ class JugadorPartido extends Model
     public function setLesionado(bool $lesionado)
     {
         $this->lesionado = $lesionado;
+    }
+    public function getNombre(): string
+    {
+        return Str::of(Str::substr($this->getJugador()['nombre'], Str::position($this->getJugador()['nombre'], ',') + 1))->trim();
+    }
+    public function getApellido(): string
+    {
+        return Str::of(Str::substr($this->getJugador()['nombre'], 0, Str::position($this->getJugador()['nombre'], ',')))->trim();
+    }
+    public function getNombreApellido(): string
+    {
+        return Str::upper($this->getNombre() . " " . $this->getApellido());
     }
 }

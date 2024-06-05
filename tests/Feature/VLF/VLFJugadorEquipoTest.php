@@ -88,4 +88,16 @@ class VLFJugadorEquipoTest extends TestCase
             $this->assertTrue(false);    
         }
     }
+
+    public function test_equipo_json(): void
+    {
+        $equipo1 = Equipo::with('jugadores.habilidad')->find(1);
+        //dump($equipo1->toJson());
+        $equipoJson = $equipo1->toJson();
+        dump($equipoJson);/*
+        $equipo2 = new Equipo;
+        $equipo2->fill(json_decode($equipoJson, true));
+        dump(json_decode($equipoJson, true)['nombre']);
+        dump(json_decode($equipoJson, true)['jugadores']);*/
+    }
 }
