@@ -751,10 +751,19 @@ class EquipoPartido //extends Model
      */
     public function toArray(): array
     {
+        //dump($this->getJugadoresConvocados());
+        $auxJugadores = [];
+        $auxContador = 0;
+        foreach ($this->getJugadoresConvocados() as $jugador) {
+            $auxContador += 1;
+            $auxJugadores = Arr::add($auxJugadores, $auxContador, $jugador->toArray());
+        }
         return array(
-            'equipo' => $this->getEquipo(),
+            'id' => $this->getId(),
+            'nombre' => $this->getNombre(),
+            'abreviatura' => $this->getAbreviatura(),
             'tactica' => $this->getTactica(),
-            'jugadoresConvocados' => $this->getJugadoresConvocados(),
+            'jugadores' => $auxJugadores,
             'idPateadorPenales' => $this->getIdPateadorPenales(),
             'localia' => $this->getLocalia(),
             'sustituciones' => $this->getSustituciones(),

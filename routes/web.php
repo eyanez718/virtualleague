@@ -16,4 +16,5 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+Route::get('partido', 'App\Http\Controllers\PartidoController@index');
 Route::get('simularPartido', 'App\Http\Controllers\PartidoController@simularPartido');

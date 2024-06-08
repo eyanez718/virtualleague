@@ -254,7 +254,7 @@ class Partido //extends Model
         // Guardo en el reporte del partido las estadísticas finales
         $this->reportarEstadisticasFinales();
         // Imprimo el reporte del partido
-        $this->imprimirReportePartido();
+        //$this->imprimirReportePartido();
     }
 
     /**
@@ -538,7 +538,7 @@ class Partido //extends Model
             $this->getEquipo($indiceEquipo)->obtenerJugador($aux_infractor)->getEstadisticas()->sumarEstadistica(EstadisticasJugadorPartido::FALTAS);
             
             $aux_infractor_arquero = false; // Indica si el infractor es el arquero
-            if ($aux_infractor == $this->getEquipo($indiceEquipo)->obtenerArquero()['id']) {
+            if ($aux_infractor == $this->getEquipo($indiceEquipo)->obtenerArquero()->getJugador()['id']) {
                 $aux_infractor_arquero = true; // Resguardo la condición por si es expulsado, para ver si fue penal
             }
             // Calculo la chancede que la falta sea sancionada con tarjeta amarilla o tarjeta roja
@@ -577,7 +577,7 @@ class Partido //extends Model
                     $this->getEquipo($indiceEquipo)->obtenerArquero()->getEstadisticas()->sumarEstadistica(EstadisticasJugadorPartido::GOLES_CONCEDIDOS);
                     
                     // Guardo comentario
-                    $this->guardarComentario(Str::replace('{e1}', $this->getEquipo(1)->getEquipo()['abreviatura'], Str::replace('{g1}', $this->getEquipo(1)->obtenerEstadistica(EstadisticasJugadorPartido::GOLES), Str::replace('{g2}', $this->getEquipo(2)->obtenerEstadistica(EstadisticasJugadorPartido::GOLES), Str::replace('{e2}', $this->getEquipo(2)->getEquipo()['abreviatura'], ComentariosPartido::getComentario('COMENTARIO_RESULTADO'))))));
+                    $this->guardarComentario(Str::replace('{e1}', $this->getEquipo(1)->getAbreviatura(), Str::replace('{g1}', $this->getEquipo(1)->obtenerEstadistica(EstadisticasJugadorPartido::GOLES), Str::replace('{g2}', $this->getEquipo(2)->obtenerEstadistica(EstadisticasJugadorPartido::GOLES), Str::replace('{e2}', $this->getEquipo(2)->getAbreviatura(), ComentariosPartido::getComentario('COMENTARIO_RESULTADO'))))));
                     
                     // reportar evento
                     /*report_event* an_event = new report_event_penalty(team[!a].player[team[!a].penalty_taker].name,
@@ -780,14 +780,14 @@ class Partido //extends Model
             $this->getEquipo($indiceEquipo)->cambiarPosicionJugador($aux_arquero_alternativo, 'AR', ''); // La función retorna un bool, se podría mejorar usandolo
             
             // Guardo comentario
-            $this->guardarComentario(Str::replace('{j}', $this->getEquipo($indiceEquipo)->obtenerJugador($aux_arquero_alternativo)->getNombreApellido(), Str::replace('{m}', $this->getMinuto(), Str::replace('{e}', $this->getEquipo($indiceEquipo)->getEquipo()['abreviatura'], Str::replace('{p}', $this->getEquipo($indiceEquipo)->obtenerJugador($aux_arquero_alternativo)->getPosicion() . $this->getEquipo($indiceEquipo)->obtenerJugador($aux_arquero_alternativo)->getLado(), ComentariosPartido::getComentario('CAMBIO_POSICION'))))));
+            $this->guardarComentario(Str::replace('{j}', $this->getEquipo($indiceEquipo)->obtenerJugador($aux_arquero_alternativo)->getNombreApellido(), Str::replace('{m}', $this->getMinuto(), Str::replace('{e}', $this->getEquipo($indiceEquipo)->getAbreviatura(), Str::replace('{p}', $this->getEquipo($indiceEquipo)->obtenerJugador($aux_arquero_alternativo)->getPosicion() . $this->getEquipo($indiceEquipo)->obtenerJugador($aux_arquero_alternativo)->getLado(), ComentariosPartido::getComentario('CAMBIO_POSICION'))))));
             if ($this->getEquipo($indiceEquipo)->getSustituciones() < Config::get('vlf.partido.sustituciones')) { // No le quedan sustituciones al equipo
                 // Busco arquero entre los suplentes y lo pongo a jugar
                 $aux_suplente = $this->getEquipo($indiceEquipo)->buscarReemplazante($aux_arquero_alternativo, false);
                 $this->getEquipo($indiceEquipo)->sustituirJugador($aux_arquero_alternativo, $aux_suplente, null, null, 1);
                 
                 // Guardo comentario
-                $this->guardarComentario(Str::replace('{m}', $this->getMinuto(), Str::replace('{e}', $this->getEquipo($indiceEquipo)->getEquipo()['abreviatura'], Str::replace('{c}', $this->getEquipo($indiceEquipo)->obtenerJugador($aux_suplente)->getNombreApellido(), Str::replace('{j}', $this->getEquipo($indiceEquipo)->obtenerJugador($idExpulsado)->getNombreApellido(), Str::replace('{p}', $this->getEquipo($indiceEquipo)->obtenerJugador($aux_suplente)->getPosicion() . $this->getEquipo($indiceEquipo)->obtenerJugador($aux_suplente)->getLado(), ComentariosPartido::getComentario('SUSTITUCION')))))));
+                $this->guardarComentario(Str::replace('{m}', $this->getMinuto(), Str::replace('{e}', $this->getEquipo($indiceEquipo)->getAbreviatura(), Str::replace('{c}', $this->getEquipo($indiceEquipo)->obtenerJugador($aux_suplente)->getNombreApellido(), Str::replace('{j}', $this->getEquipo($indiceEquipo)->obtenerJugador($idExpulsado)->getNombreApellido(), Str::replace('{p}', $this->getEquipo($indiceEquipo)->obtenerJugador($aux_suplente)->getPosicion() . $this->getEquipo($indiceEquipo)->obtenerJugador($aux_suplente)->getLado(), ComentariosPartido::getComentario('SUSTITUCION')))))));
             }
         } else {
             // Quito al jugador expulsado
@@ -850,7 +850,7 @@ class Partido //extends Model
                     $this->getEquipo($indiceEquipo)->cambiarPosicionJugador($aux_arquero_alternativo, 'AR', ''); // La función retorna un bool, se podría mejorar usandolo
                     
                     // Guardo comentario
-                    $this->guardarComentario(Str::replace('{j}', $this->getEquipo($indiceEquipo)->obtenerJugador($aux_arquero_alternativo)->getNombreApellido(), Str::replace('{m}', $this->getMinuto(), Str::replace('{e}', $this->getEquipo($indiceEquipo)->getEquipo()['abreviatura'], Str::replace('{p}', $this->getEquipo($indiceEquipo)->obtenerJugador($aux_arquero_alternativo)->getPosicion() . $this->getEquipo($indiceEquipo)->obtenerJugador($aux_arquero_alternativo)->getLado(), ComentariosPartido::getComentario('CAMBIO_POSICION'))))));
+                    $this->guardarComentario(Str::replace('{j}', $this->getEquipo($indiceEquipo)->obtenerJugador($aux_arquero_alternativo)->getNombreApellido(), Str::replace('{m}', $this->getMinuto(), Str::replace('{e}', $this->getEquipo($indiceEquipo)->getAbreviatura(), Str::replace('{p}', $this->getEquipo($indiceEquipo)->obtenerJugador($aux_arquero_alternativo)->getPosicion() . $this->getEquipo($indiceEquipo)->obtenerJugador($aux_arquero_alternativo)->getLado(), ComentariosPartido::getComentario('CAMBIO_POSICION'))))));
                 }
             } else { // El equipo tiene sustituciones disponibles, realizo una
                 $aux_suplente = $this->getEquipo($indiceEquipo)->buscarReemplazante($aux_lesionado);
@@ -963,7 +963,7 @@ class Partido //extends Model
                         }
                     }
                     // Guardo comentario
-                    $this->guardarComentario(Str::replace('{e1}', $this->getEquipo(1)->getEquipo()['abreviatura'], Str::replace('{g1}', $aux_goles_equipo_1, Str::replace('{g2}', $aux_goles_equipo_2, Str::replace('{e2}', $this->getEquipo(2)->getEquipo()['abreviatura'], ComentariosPartido::getComentario('COMENTARIO_RESULTADO'))))));
+                    $this->guardarComentario(Str::replace('{e1}', $this->getEquipo(1)->getAbreviatura(), Str::replace('{g1}', $aux_goles_equipo_1, Str::replace('{g2}', $aux_goles_equipo_2, Str::replace('{e2}', $this->getEquipo(2)->getAbreviatura(), ComentariosPartido::getComentario('COMENTARIO_RESULTADO'))))));
                 }
                 $aux_diferencia_goles = $aux_goles_equipo_1 - $aux_goles_equipo_2;
                 // Chequeo si la tanda de penales fue terminado
@@ -1162,7 +1162,8 @@ class Partido //extends Model
                 Str::padLeft('ASI', 4) .
                 Str::padLeft('FAL', 4) .
                 Str::padLeft('TAM', 4) .
-                Str::padLeft('TAR', 4)
+                Str::padLeft('TAR', 4) .
+                Str::padLeft('FIS', 4)
             );
             foreach ($this->getEquipo($i)->getJugadoresConvocados() as $jugador) {
                 $this->guardarComentario(
@@ -1179,7 +1180,8 @@ class Partido //extends Model
                     Str::padLeft($jugador->getEstadisticas()->obtenerEstadistica(EstadisticasJugadorPartido::ASISTENCIAS), 4) .
                     Str::padLeft($jugador->getEstadisticas()->obtenerEstadistica(EstadisticasJugadorPartido::FALTAS), 4) .
                     Str::padLeft($jugador->getEstadisticas()->obtenerEstadistica(EstadisticasJugadorPartido::TARJETAS_AMARILLAS), 4) .
-                    Str::padLeft($jugador->getEstadisticas()->obtenerEstadistica(EstadisticasJugadorPartido::TARJETAS_ROJAS), 4)
+                    Str::padLeft($jugador->getEstadisticas()->obtenerEstadistica(EstadisticasJugadorPartido::TARJETAS_ROJAS), 4) .
+                    Str::padLeft((int) ($jugador->getFatiga() * 100), 4)
                 );
             }
         }
@@ -1200,11 +1202,23 @@ class Partido //extends Model
      */
     public function toJson()
     {
-        return response()->json(array(
+        return json_encode(array(
             'minuto' => $this->getMinuto(),
             'equipo1' => $this->getEquipo(1)->toArray(),
             'equipo2' => $this->getEquipo(2)->toArray(),
         ));
+    }
+
+    /**
+     * Retorna un JSON con el estado del partido
+     */
+    public function toArray()
+    {
+        return array(
+            'minuto' => $this->getMinuto(),
+            'equipo1' => $this->getEquipo(1)->toArray(),
+            'equipo2' => $this->getEquipo(2)->toArray(),
+        );
     }
 
     /**

@@ -44,9 +44,15 @@ class VLFPartidoGTest extends TestCase
      */
     public function test_simular_partido(): void
     {
-        $equipo1 = Equipo::with('jugadores.habilidad')->find(1);
-        $equipo2 = Equipo::with('jugadores.habilidad')->find(2);
-        $partido = New Partido($equipo1->toJson(), $equipo2->toJson());
+        //$equipo1 = Equipo::with('jugadores.habilidad')->find(1);
+        //$equipo2 = Equipo::with('jugadores.habilidad')->find(2);
+        //$partido = New Partido($equipo1->toJson(), $equipo2->toJson());
+        //$partido->simularPartido();
+        $equipo1 = Equipo::find(1);
+        $equipo2 = Equipo::find(2);
+        
+        $partido = New Partido(json_encode($equipo1->preparacionPartido()), json_encode($equipo2->preparacionPartido()));
+        
         $partido->simularPartido();
         
         $this->assertTrue(true);

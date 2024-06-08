@@ -9,7 +9,7 @@ use App\Models\VLF\Jugador;
 use App\Models\VLF\Simulador\EstadisticasJugadorPartido;
 use Illuminate\Support\Str;
 
-class JugadorPartido extends Model
+class JugadorPartido// extends Model
 {
     use HasFactory;
 
@@ -184,6 +184,14 @@ class JugadorPartido extends Model
         }
         $aux_contribucion = ($aux_multi_posicion + $aux_bonus_posicion) * $aux_multi_lado * $this->getJugador()['habilidad']['habilidad_tiro'] * $this->getFatiga();
         return $aux_contribucion;
+    }
+
+    public function toArray(): array
+    {
+        return $auxJugador = [
+            'jugador' => $this->getJugador(),
+            'estadisticas' => $this->getEstadisticas()->toArray(),
+        ];
     }
 
     /**

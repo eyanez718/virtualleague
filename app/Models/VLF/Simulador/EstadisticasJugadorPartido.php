@@ -170,4 +170,32 @@ class EstadisticasJugadorPartido extends Model
                 break;
         }
     }
+
+    /**
+     * Retorna el objeto en formato array
+     * 
+     * @return array
+     */
+    public function toArray()
+    {
+        return [
+            'minutos' => $this->minutos,
+            'atajadas' => $this->atajadas,
+            'quites' => $this->quites,
+            'pases_clave' => $this->pases_clave,
+            'tiros' => $this->tiros,
+            'goles' => $this->goles,
+            'faltas' => $this->faltas,
+            'asistencias' => $this->asistencias,
+            'tarjetas_amarillas' => $this->tarjetas_amarillas,
+            'tarjetas_rojas' => $this->tarjetas_rojas,
+            'tiros_al_arco' => $this->tiros_al_arco,
+            'tiros_afuera' => $this->tiros_afuera,
+            'goles_concedidos' => $this->goles_concedidos,
+            'progreso_arquero' => $this->progreso_arquero,
+            'progreso_quite' => $this->progreso_quite,
+            'progreso_pase' => $this->progreso_pase,
+            'progreso_tiro' => $this->progreso_tiro,
+        ];
+    }
 }
